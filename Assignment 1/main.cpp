@@ -13,8 +13,8 @@ struct Node{
     Node* next;
 };
 
-// A queue needs to add and remove elements in a FIFO structure
-// A queue object itself only ever stores two pointers
+// adds and remove elements in a FIFO manner
+// only ever stores two pointers
 // contains and hides the node class to maintain order of nodes
 template <typename T>
 class Queue {
@@ -47,12 +47,12 @@ class Queue {
         // deleted the removed node from memory
         T dequeue() {
             if(isEmpty()) {
-                throw logic_error("Cannot dequeue from empty array.");
+                throw logic_error("Cannot dequeue from empty queue.");
             }
-            Node<T>* throwInTheGarbage = first;
+            Node<T>* trash = first;
             T value = first->data;
             first = first->next;
-            delete throwInTheGarbage;
+            delete trash;
 
             if (first == nullptr) {
                 last = nullptr;
@@ -67,6 +67,41 @@ class Queue {
         }
 };
 
+// adds and remove elements in a FILO manner
+// only ever stores one pointer
+// contains and hides the node class to maintain order of nodes
+template <typename T>
+class Stack {
+    private:
+        Node<T>* top;
+    
+    public:
+        
+        // add an element in constant time
+        void push(T value) {
+            Node<T>* node = new Node<T>;
+            node->data = value;
+            node->next = top;
+            top = node;
+        }
+        // remove an element in constant time if there are elements
+        T pop(){
+            if(isEmpty()){
+                throw logic_error("Cannot pop from empty stack.");
+            }
+            Node<T>* trash = top;
+            T value = top->data;
+            top = top->next;
+            delete trash;
+
+            return value;
+        }
+
+        // constant time
+        bool isEmpty(){
+            return top == nullptr;
+        }
+};
 // Add and remove elements from a queue 
 void testQueue() {
     int numbers[10] = {1,2,3,4,5,6,7,8,9,10};
@@ -92,8 +127,34 @@ void testQueue() {
     }
 }
 
+// add and remove elements from a stack
+void testStack() {
+    int numbers[10] = {1,2,3,4,5,6,7,8,9,10};
+
+    Stack<int> stack;
+    for(int num: numbers ){
+        stack.push(num);
+    }
+
+    int value;
+    while(!stack.isEmpty()) {
+        value = stack.pop();
+        cout << value << endl;
+    }
+
+    for(int num: numbers ){
+        stack.push(num);
+    }
+
+    while(!stack.isEmpty()) {
+        value = stack.pop();
+        cout << value << endl;
+    }
+
+}
 // Run tests
 int main(){
     testQueue();
+    testStack();
     return 0;
 }
