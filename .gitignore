@@ -33,3 +33,6 @@
 
 # my latex builds
 built
+
+# vscode
+.vscode
