@@ -67,7 +67,7 @@ class Queue {
         }
 };
 
-// adds and remove elements in a FILO manner
+// adds and remove elements in a LIFO manner
 // only ever stores one pointer
 // contains and hides the node class to maintain order of nodes
 template <typename T>
@@ -102,7 +102,8 @@ class Stack {
             return top == nullptr;
         }
 };
-// Add and remove elements from a queue 
+
+// Add and remove elements from a queue twice
 void testQueue() {
     int numbers[10] = {1,2,3,4,5,6,7,8,9,10};
 
@@ -152,9 +153,55 @@ void testStack() {
     }
 
 }
+bool isPalindrome(string &candidate){
+    Queue<char> fifo;
+    Stack<char> lifo;
+    for(const char ch: candidate) {
+        if(ch == ' '){
+            continue;
+        }
+        // same case
+        fifo.enqueue(tolower(ch));
+        lifo.push(tolower(ch));
+    }
+
+    // asymmetrical patten since fifo and lifo should be empty at the same iteration
+    while(!fifo.isEmpty() ){
+        if(fifo.dequeue() != lifo.pop()){
+            return false;
+        }
+    }
+
+    return true;
+
+
+}
+void cpalindromes(vector<string>& candidates){
+    cout << "Showing Palindromes: " << endl;
+    for(string& candidate : candidates){
+        if(isPalindrome(candidate)){
+            cout << candidate << endl;
+        }
+    }
+}
+
+vector<string> getMagicItems(){
+    vector<string> magicItems;
+    ifstream magicItemsStream("magicitems.txt");
+    string line; 
+    while(getline(magicItemsStream, line)){
+        magicItems.push_back(line);
+    }
+    magicItemsStream.close();
+    return magicItems;
+
+}
+
 // Run tests
 int main(){
     testQueue();
     testStack();
+    vector<string> magicItems = getMagicItems();
+    cpalindromes(magicItems);
     return 0;
 }
