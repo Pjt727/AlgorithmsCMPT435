@@ -1,7 +1,8 @@
 #include<iostream>
 #include<fstream>
 #include<vector>
-#include<random>
+#include<cstdlib>
+#include<ctime>
 
 using namespace std;
 
@@ -197,26 +198,50 @@ vector<string> getMagicItems(){
     return magicItems;
 }
 
-// In place fisher yates shuffle
+// In place fisher yates shuffle https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 void fisherYatesShuffle(vector<string>& items){
+    int swapIndex;
 
-    random_device seed;
-    mt19937 engine(seed());
-    uniform_int_distribution<int> distribution(0, end);
-
-    
-    for(int end = items.size(); end > 1; end++){
-
-
+    // Reseeding the number generator with the psuedo random time
+    // This means that multiple shuffles within the program can be linked through their delay between shuffle invocations
+    // If "better" randomness is desired the random library could be considered
+    srand(static_cast<unsigned>(time(nullptr)));
+    for(int end = items.size()-1; end > 0; end--){
+        swapIndex = rand() % (end + 1);
+        if(swapIndex == end) { continue; }
+        // probably internally done using an XOR swap https://en.wikipedia.org/wiki/XOR_swap_algorithm
+        //  of the chars in the string
+        swap(items[end], items[swapIndex]);
     }
+}
 
+// Sorts the items in O(n^2) time 
+void selectionSort(vector<string>& items) {
+    int minIndex;
+    for(int i = 0; i < items.size(); i++){
+        minIndex = i;
+        for(int j = i + 1; j < items.size(); j++){
+            if(items[j] < items[minIndex]){
+                minIndex = j;
+            }
+        }
+        if(minIndex == i){ continue; }
+        swap(items[i], items[minIndex]);
+    }
 }
 
 // Run tests
 int main(){
-    testQueue();
-    testStack();
-    vector<string> magicItems = getMagicItems();
-    cpalindromes(magicItems);
+    // testQueue();
+    // testStack();
+    // vector<string> magicItems = getMagicItems();
+    // cpalindromes(magicItems);
+    vector<string> items = {"blah1","blah2","blah3","blah4","blah5","blah6","blah7","blah8","blah9"};
+
+    fisherYatesShuffle(items);
+    selectionSort(items);
+    for( string item : items){
+        cout << item << endl;
+    }
     return 0;
 }
