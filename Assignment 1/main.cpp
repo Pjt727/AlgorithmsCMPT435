@@ -1,6 +1,7 @@
 #include<iostream>
 #include<fstream>
 #include<vector>
+#include<random>
 
 using namespace std;
 
@@ -194,6 +195,20 @@ vector<string> getMagicItems(){
     }
     magicItemsStream.close();
     return magicItems;
+}
+
+// In place fisher yates shuffle
+void fisherYatesShuffle(vector<string>& items){
+
+    random_device seed;
+    mt19937 engine(seed());
+    uniform_int_distribution<int> distribution(0, end);
+
+    
+    for(int end = items.size(); end > 1; end++){
+
+
+    }
 
 }
 
