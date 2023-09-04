@@ -211,11 +211,15 @@ void fisherYatesShuffle(vector<string>& items){
         if(swapIndex == end) { continue; }
         // probably internally done using an XOR swap https://en.wikipedia.org/wiki/XOR_swap_algorithm
         //  of the chars in the string
+        // Using the inbuilt swap is more elegant since we can interface an object type into this sort if needed
+        // This wont work with primitive types though
         swap(items[end], items[swapIndex]);
     }
 }
 
-// Sorts the items in O(n^2) time 
+
+// Sorts the items in ascending order in O(n^2) time 
+// Finds the min of the remaining items and swaps it to the end of the remaining items
 void selectionSort(vector<string>& items) {
     int minIndex;
     for(int i = 0; i < items.size(); i++){
@@ -230,6 +234,23 @@ void selectionSort(vector<string>& items) {
     }
 }
 
+// Sorts the items in ascending order in O(n^2) time
+void insertionSort(vector<string>& items){
+    if(items.size() <= 1) { return; }
+    string selectedItem;
+    int prevIndex;
+    for(int i=1; i < items.size(); i++){
+        selectedItem = items[i];
+        prevIndex = i - 1;
+        while(( prevIndex >= 0 ) && (items[prevIndex] > selectedItem)) {
+            items[prevIndex + 1] = items[prevIndex];
+            prevIndex--;
+        }
+        items[prevIndex + 1] = selectedItem;
+    }
+
+}
+
 // Run tests
 int main(){
     // testQueue();
@@ -239,7 +260,8 @@ int main(){
     vector<string> items = {"blah1","blah2","blah3","blah4","blah5","blah6","blah7","blah8","blah9"};
 
     fisherYatesShuffle(items);
-    selectionSort(items);
+    // selectionSort(items);
+    insertionSort(items);
     for( string item : items){
         cout << item << endl;
     }
