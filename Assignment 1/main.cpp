@@ -254,21 +254,68 @@ void insertionSort(string* items){
         }
         items[prevIndex + 1] = selectedItem;
     }
+}
 
+// Merge sort functions to sort in ascending order in O(nlogn) time, but also O(nlogn) space
+
+
+// helper to merge two sorted arrays
+pair<string*, int> mergeSorted(string* items1, string* items2, int size1, int size2){
+    int mergedLength = size1 + size2;
+    string* mergedItems = new string[mergedLength];
+    int i1 = 0;
+    string item1;
+    int i2 = 0;
+    string item2;
+    for(int iMerged = 0; iMerged < mergedLength; iMerged++){
+        // check for out of bounds
+        if(i1 == size1){
+            mergedItems[iMerged] = items2[i2];
+            i2++;
+            continue;
+        }
+        if(i2 == size2){
+            mergedItems[iMerged] = items1[i1];
+            i1++;
+            continue;
+        }
+
+        // compare items to find min of the two
+        item1 = items1[i1];
+        item2 = items2[i2];
+        if(item1 < item2){
+            mergedItems[iMerged] = item1;
+            i1++;
+        } else {
+            mergedItems[iMerged] = item2;
+            i2++;
+        }
+    }
+    return make_pair(mergedItems, mergedLength);
 }
 
 // Run tests
 int main(){
     // testQueue();
     // testStack();
-    string* magicItems = getMagicItems();
+    // string* magicItems = getMagicItems();
     // cpalindromes(magicItems);
 
-    fisherYatesShuffle(magicItems);
+    // fisherYatesShuffle(magicItems);
     // selectionSort(magicItems);
     // insertionSort(magicItems);
-    for(int i = 0; i < 9; i++){
-        cout << magicItems[i] << endl;
+    // for(int i = 0; i < 9; i++){
+    //     cout << magicItems[i] << endl;
+    // }
+
+    string test1[] = {"blah1", "blah2", "blah4", "blah5", "blah8"};
+    string test2[] = {"blah3", "blah6", "blah7", "blah9", "blah10"};
+    auto mergeResult = mergeSorted(test1, test2, 5, 5);
+    string* test3 = mergeResult.first;
+    int test3Length = mergeResult.second;
+    for(int i=0; i < test3Length; i++){
+        cout << test3[i] << endl;
     }
+
     return 0;
 }
