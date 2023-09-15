@@ -6,6 +6,9 @@
 
 using namespace std;
 
+// Dirty dirty constants
+const int DEVILS_NUMBER = 666;
+
 
 // Wraps a generic, T, typed data in a node to reference other nodes
 // For certain types data may be more appropriately a pointer
@@ -187,26 +190,29 @@ void cpalindromes(vector<string>& candidates){
     }
 }
 
-vector<string> getMagicItems(){
-    vector<string> magicItems;
+string* getMagicItems(){
+    string* magicItems= new string[DEVILS_NUMBER];
     ifstream magicItemsStream("magicitems.txt");
     string line; 
+    int i = 0;
     while(getline(magicItemsStream, line)){
-        magicItems.push_back(line);
+        magicItems[i] = line;
+        i++;
     }
     magicItemsStream.close();
     return magicItems;
 }
 
 // In place fisher yates shuffle https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
-void fisherYatesShuffle(vector<string>& items){
+void fisherYatesShuffle(string* items){
     int swapIndex;
 
     // Reseeding the number generator with the psuedo random time
     // This means that multiple shuffles within the program can be linked through their delay between shuffle invocations
     // If "better" randomness is desired the random library could be considered
     srand(static_cast<unsigned>(time(nullptr)));
-    for(int end = items.size()-1; end > 0; end--){
+
+    for(int end = DEVILS_NUMBER-1; end > 0; end--){
         swapIndex = rand() % (end + 1);
         if(swapIndex == end) { continue; }
         // probably internally done using an XOR swap https://en.wikipedia.org/wiki/XOR_swap_algorithm
@@ -220,11 +226,11 @@ void fisherYatesShuffle(vector<string>& items){
 
 // Sorts the items in ascending order in O(n^2) time 
 // Finds the min of the remaining items and swaps it to the end of the remaining items
-void selectionSort(vector<string>& items) {
+void selectionSort(string* items) {
     int minIndex;
-    for(int i = 0; i < items.size(); i++){
+    for(int i = 0; i < DEVILS_NUMBER; i++){
         minIndex = i;
-        for(int j = i + 1; j < items.size(); j++){
+        for(int j = i + 1; j < DEVILS_NUMBER; j++){
             if(items[j] < items[minIndex]){
                 minIndex = j;
             }
@@ -235,11 +241,11 @@ void selectionSort(vector<string>& items) {
 }
 
 // Sorts the items in ascending order in O(n^2) time
-void insertionSort(vector<string>& items){
-    if(items.size() <= 1) { return; }
+void insertionSort(string* items){
+    if(DEVILS_NUMBER <= 1) { return; }
     string selectedItem;
     int prevIndex;
-    for(int i=1; i < items.size(); i++){
+    for(int i=1; i < DEVILS_NUMBER; i++){
         selectedItem = items[i];
         prevIndex = i - 1;
         while(( prevIndex >= 0 ) && (items[prevIndex] > selectedItem)) {
@@ -255,15 +261,14 @@ void insertionSort(vector<string>& items){
 int main(){
     // testQueue();
     // testStack();
-    // vector<string> magicItems = getMagicItems();
+    string* magicItems = getMagicItems();
     // cpalindromes(magicItems);
-    vector<string> items = {"blah1","blah2","blah3","blah4","blah5","blah6","blah7","blah8","blah9"};
 
-    fisherYatesShuffle(items);
-    // selectionSort(items);
-    insertionSort(items);
-    for( string item : items){
-        cout << item << endl;
+    fisherYatesShuffle(magicItems);
+    // selectionSort(magicItems);
+    // insertionSort(magicItems);
+    for(int i = 0; i < 9; i++){
+        cout << magicItems[i] << endl;
     }
     return 0;
 }
