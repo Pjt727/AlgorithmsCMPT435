@@ -204,7 +204,7 @@ string* getMagicItems(){
 }
 
 // In place fisher yates shuffle https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
-void fisherYatesShuffle(string* items){
+void fisherYatesShuffle(string* items, int length = DEVILS_NUMBER){
     int swapIndex;
 
     // Reseeding the number generator with the psuedo random time
@@ -212,7 +212,7 @@ void fisherYatesShuffle(string* items){
     // If "better" randomness is desired the random library could be considered
     srand(static_cast<unsigned>(time(nullptr)));
 
-    for(int end = DEVILS_NUMBER-1; end > 0; end--){
+    for(int end = length-1; end > 0; end--){
         swapIndex = rand() % (end + 1);
         if(swapIndex == end) { continue; }
         // probably internally done using an XOR swap https://en.wikipedia.org/wiki/XOR_swap_algorithm
@@ -294,7 +294,12 @@ pair<string*, int> mergeSorted(string* items1, string* items2, int size1, int si
     return make_pair(mergedItems, mergedLength);
 }
 
-void mergeSort(string* items, int istart=0, int iend=DEVILS_NUMBER-1, int depth=0){
+void mergeSort(string* items, int istart=0, int iend=DEVILS_NUMBER-1, int depth=0, string leftRight="NA"){
+    cout << depth << ", " << istart << ", " << iend << ", " << leftRight << endl;
+    for(int i=istart; i <= iend; i++){
+        cout << items[i] << " | ";
+    }
+    cout << endl;
     // base case as we have reached our sorted array of at 1 or 0 elements!
     if (istart >= iend){
         return;
@@ -305,8 +310,8 @@ void mergeSort(string* items, int istart=0, int iend=DEVILS_NUMBER-1, int depth=
     int rightLength = iend - imiddle; 
     string right[rightLength];
     // recursively call mergeSort to ensure that we are using the sorted array when we merge
-    mergeSort(items, istart, imiddle, depth + 1);
-    mergeSort(items, imiddle + 1, iend, depth + 1);
+    mergeSort(items, istart, imiddle, depth + 1, "left");
+    mergeSort(items, imiddle + 1, iend, depth + 1, "right");
 
 
     // populating left and right sub arrays to be merged
@@ -346,7 +351,8 @@ int main(){
     //     cout << magicItems[i] << endl;
     // }
 
-    string* test1 = new string[10]{"blah1", "blah2", "blah4", "blah5", "blah8", "blah3", "blah6", "blah7", "blah9", "blah10"};
+    string* test1 = new string[10]{"blah5", "blah7", "blah4", "blah1", "blah8", "blah3", "blah6", "blah2", "blah9", "blah10"};
+    fisherYatesShuffle(test1, 10);
     mergeSort(test1, 0, 9);
 
     for(int i=0; i < 10; i++){
