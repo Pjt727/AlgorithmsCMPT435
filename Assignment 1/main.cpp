@@ -256,7 +256,7 @@ void insertionSort(string* items){
     }
 }
 
-// Merge sort functions to sort in ascending order in O(nlogn) time, but also O(nlogn) space
+// Merge sort functions to sort in ascending order in O(nlogn) time
 
 
 // helper to merge two sorted arrays
@@ -294,6 +294,44 @@ pair<string*, int> mergeSorted(string* items1, string* items2, int size1, int si
     return make_pair(mergedItems, mergedLength);
 }
 
+void mergeSort(string* items, int istart=0, int iend=DEVILS_NUMBER-1, int depth=0){
+    // base case as we have reached our sorted array of at 1 or 0 elements!
+    if (istart >= iend){
+        return;
+    }
+    int imiddle = istart + (iend - istart) / 2;
+    int leftLength = imiddle - istart + 1;
+    string left[leftLength];
+    int rightLength = iend - imiddle; 
+    string right[rightLength];
+    // recursively call mergeSort to ensure that we are using the sorted array when we merge
+    mergeSort(items, istart, imiddle, depth + 1);
+    mergeSort(items, imiddle + 1, iend, depth + 1);
+
+
+    // populating left and right sub arrays to be merged
+    for(int i = 0; i < leftLength; i++){
+        left[i] = items[istart + i];
+    }
+    for(int i = 0; i < rightLength; i++){
+        right[i] = items[imiddle + 1 + i];
+    }
+    
+    // it might make sense to just return the array because the caller will always
+    //   know the resulting size (leftLength + rightLength in this case)
+    auto mergedResult = mergeSorted(left, right, leftLength, rightLength); 
+    string* mergedArray = mergedResult.first;
+    int mergedLength = mergedResult.second;
+
+    // resetting starter pointers and filling the original array with the sorted
+    //   sub arrays
+    int imerged = 0;
+    for(int i = istart; i < mergedLength; i++){
+        items[i] = mergedArray[imerged];
+        imerged++;
+    }
+    delete[] mergedArray;
+}
 // Run tests
 int main(){
     // testQueue();
@@ -308,13 +346,11 @@ int main(){
     //     cout << magicItems[i] << endl;
     // }
 
-    string test1[] = {"blah1", "blah2", "blah4", "blah5", "blah8"};
-    string test2[] = {"blah3", "blah6", "blah7", "blah9", "blah10"};
-    auto mergeResult = mergeSorted(test1, test2, 5, 5);
-    string* test3 = mergeResult.first;
-    int test3Length = mergeResult.second;
-    for(int i=0; i < test3Length; i++){
-        cout << test3[i] << endl;
+    string* test1 = new string[10]{"blah1", "blah2", "blah4", "blah5", "blah8", "blah3", "blah6", "blah7", "blah9", "blah10"};
+    mergeSort(test1, 0, 9);
+
+    for(int i=0; i < 10; i++){
+        cout << test1[i] << endl;
     }
 
     return 0;
