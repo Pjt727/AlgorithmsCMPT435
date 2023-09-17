@@ -324,10 +324,8 @@ void mergeSort(string* items, int istart=0, int iend=DEVILS_NUMBER-1, int depth=
     string* mergedArray = mergedResult.first;
     int mergedLength = mergedResult.second;
 
-    int imerged = 0;
-    for(int i = istart; imerged < mergedLength; i++){
-        items[i] = mergedArray[imerged];
-        imerged++;
+    for(int imerged = 0; imerged < mergedLength; imerged++){
+        items[istart + imerged] = mergedArray[imerged];
     }
     delete[] mergedArray;
 }
