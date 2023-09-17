@@ -295,15 +295,11 @@ pair<string*, int> mergeSorted(string* items1, string* items2, int size1, int si
 }
 
 void mergeSort(string* items, int istart=0, int iend=DEVILS_NUMBER-1, int depth=0, string leftRight="NA"){
-    cout << depth << ", " << istart << ", " << iend << ", " << leftRight << endl;
-    for(int i=istart; i <= iend; i++){
-        cout << items[i] << " | ";
-    }
-    cout << endl;
     // base case as we have reached our sorted array of at 1 or 0 elements!
     if (istart >= iend){
         return;
     }
+
     int imiddle = istart + (iend - istart) / 2;
     int leftLength = imiddle - istart + 1;
     string left[leftLength];
@@ -328,10 +324,8 @@ void mergeSort(string* items, int istart=0, int iend=DEVILS_NUMBER-1, int depth=
     string* mergedArray = mergedResult.first;
     int mergedLength = mergedResult.second;
 
-    // resetting starter pointers and filling the original array with the sorted
-    //   sub arrays
     int imerged = 0;
-    for(int i = istart; i < mergedLength; i++){
+    for(int i = istart; imerged < mergedLength; i++){
         items[i] = mergedArray[imerged];
         imerged++;
     }
@@ -351,13 +345,19 @@ int main(){
     //     cout << magicItems[i] << endl;
     // }
 
-    string* test1 = new string[10]{"blah5", "blah7", "blah4", "blah1", "blah8", "blah3", "blah6", "blah2", "blah9", "blah10"};
+    string* test1 = new string[10]{"blah3", "blah4", "blah1", "blah2", "blah5", "blah6", "blah7", "blah8", "blah9", "blah10"};
     fisherYatesShuffle(test1, 10);
+    for(int i=0; i < 10; i++){
+        cout << test1[i] << ", ";
+    }
+    cout << endl;
     mergeSort(test1, 0, 9);
+    cout << endl;
 
     for(int i=0; i < 10; i++){
-        cout << test1[i] << endl;
+        cout << test1[i] << ", ";
     }
+    cout << endl;
 
     return 0;
 }
