@@ -32,6 +32,7 @@
 \usepackage{lastpage}
 \usepackage{url}
 \usepackage{xcolor}
+\usepackage{titlesec}
 
 % Stolen from https://www.overleaf.com/learn/latex/Code_listing 
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -97,20 +98,83 @@
 
 % - -- -  - -- -  - -- -  -
 \section{Nodes, Stacks, \& Queues}
+\subsection{Making a Node}
 A node needs to contain the data it stores and reference(s) to another node.
 In this case, just a single reference to a next Node is needed because the nodes will only be singly linked.
 A node struct could be used to implement this which wraps a piece of data with a reference to the next Node.
 A node is a building block for many different algorithms and structures; 
 therefore, this node structure should be generic enough to easily create a node storing any type of data.
 \lstinputlisting[linerange={27-32}, firstnumber=27]{main.cpp}
+\subsection{Stacks \& Queues}
 Nodes can link together to form stacks and queues.
 Stacks and queues in programming should be intuitive as stacks (much like a stack of papers)
-are first in first out (FIFO) while queues (much like a line of people waiting for something) are last in first out (LIFO).
+are first in first out (FIFO) while queues (much like a line of people waiting for something) are last in first out (LIFO).\\
+\newline
+Well structured stack and queue classes encapsulate node structure they are made of only revealing their 
+respective functionality to add and get data. Both stacks and queues should have method to check if the are empty, add data, and remove data.
+The interface for stacks minimally follows: push() and pop(). The interface for queues minimally follows:
+queue() and enqueue(). It should be obvious what each method does. Each method should happen in constant time. \\
 \hfill \break \newline
-Good stack and queue classes encapsulate node structure they are made of only revealing their 
-respective functionality. Both stacks and queues should have method to check if the are empty, add data, and remove data.
-The interface for stacks usually minimally follows: isEmpty(), push(), and pop(). The interface for queue usually follows:
-isEmpty(), queue(), and enqueue(). It should obvious what each method does. 
+The stack class will need to have contain a pointer to the head (the top of the stack) to implement its interface.\\
+\textbf{Push action:}
+\begin{enumerate}
+    \item Takes in a piece of data and creates a new node.
+    \item Sets the new node to this head.
+    \item Sets the new node's next value to the previous head (if there was one).
+\end{enumerate}
+\textbf{Pop action:}
+\begin{enumerate}
+    \item Make the new head the current head's next attribute.
+    \item Return the value of now the old head node.
+\end{enumerate}
+\textbf{isEmpty action:}
+\begin{enumerate}
+    \item Returns if the head is currently points to a node.
+\end{enumerate}
+The queue class will need to have a pointer to the first (start of the line) and the last (end of the line) node
+to implement its interface in constant time. It is possible to only have a pointer to the first node and then traverse
+the queue to obtain the last, but the trade off to store an additional pointer to the last element is almost worth it because
+it saves the queues from having to execute a linear time complexity operation when enqueuing.\\
+\textbf{Enqueue action:}
+\begin{enumerate}
+    \item Takes in a piece of data and creates a new node.
+    \item Sets the new node to the value of the tail.
+    \item Only if there was no head node, sets the new node equal to the head.
+    \item Sets the previous tail's next value to the new node (if there was one).
+\end{enumerate}
+\textbf{Dequeue action:}
+\begin{enumerate}
+    \item Set the first to the current first's next attribute.
+    \item Return the value of now the old head node.
+\end{enumerate}
+\textbf{isEmpty action:}
+\begin{enumerate}
+    \item Returns if the head is currently points to a node.
+\end{enumerate}
+\subsection{A Simple Stack \& Queue Use Case}
+A palindrome is phrase that is the same forward and backwards often only including
+alphanumeric characters and casing.  "Race car" is a palindrome because the letters read the same
+front to back and back to front.
+
+\[R_0 a_1 c_2 e_3 \ c_4 a_5 r_6 == r_6 a_5 c_4 \ e_3 c_2 a_1 R_0\]
+\noindent
+This applies to stack and queues as if the letters of race car were pushed to a stack
+as well as enqueued to a queue, comparing, in order, the dequeued elements with the popping elements
+will render all equal comparisons. If any of these comparisons are false then then the phrase is not
+a palindrome.
+
+\section{Sorting}
+\subsection{Introduction}
+A collection of data (say n with length x) is said to be sorted when comparable elements are arranged in an order
+such that:
+\[n_0 <= n_1 <= n_2 <= n_3 \dots <= n_{x-1} \]
+\[or\]
+\[n_0 >= n_1 >= n_2 >= n_3 \dots >= n_{x-1}\]
+For future algorithms such as binary search, this relationship is foundational.
+\subsection{The "Opposite" of Sorted}
+Conceptually, the opposite of a sorted collection is one in which the elements are
+randomly positioned. This does not mean the collection is not sorted, just that the elements
+are placed randomly. 
 
 
 
