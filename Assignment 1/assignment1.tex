@@ -304,5 +304,34 @@ each sort's number of comparison is proportional to its time complexity by some 
 Of course, adaptive comparison numbers will change depending on the starting array; still,
 their comparisons average out to be some proportional value.
 
+\section{My Code Presentation}
+\textit{I am not sure if is needed but the assignment says ALL code must 
+be documented in latex so I will document my presentation code here. But, this
+section will not read like a textbook because this is strictly about my own
+presentation decisions} \\
+\noindent
+\newline
+To ensure the node, queue, and stack code works properly I wrote testQueue() and test testStack()
+functions. These functions add and remove 10 items from the queue and stack twice. I did this way
+to ensure the structures worked in cases where they were adding and removing with no nodes.
+\lstinputlisting[linerange={123-176}, firstnumber=123]{main.cpp}
+To get the magic items used in further tests and sorting I read in the .txt file putting each line
+into a statically sized array.
+\lstinputlisting[linerange={210-222}, firstnumber=210]{main.cpp}
+To display the palindromes I iterated through the entire items array and used my function described
+but not displayed earlier to check if the phrase was a palindrome.
+\lstinputlisting[linerange={178-208}, firstnumber=178]{main.cpp}
+\newpage
+To view the array in the console to ensure proper sorting, I created a helper function which
+displays up to the certain count but to over the length. This allowed me to quickly check if
+part of the list was sorted when making the sorting functions.
+\lstinputlisting[linerange={457-465}, firstnumber=457]{main.cpp}
+To run these test I created a main function which: tests the queues, stacks, and node;
+prints the palindromes; runs each sort shuffling in between as well as displaying the
+first n elements and the count of comparisons.
+\lstinputlisting[linerange={467-522}, firstnumber=467]{main.cpp}
+
+
+
 
 \end{document}
