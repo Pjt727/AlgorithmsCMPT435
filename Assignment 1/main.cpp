@@ -231,12 +231,12 @@ void fisherYatesShuffle(string* items, int length = DEVILS_NUMBER){
     srand(static_cast<unsigned>(time(nullptr)));
 
     for(int end = length-1; end > 0; end--){
-        swapIndex = rand() % (end + 1);
+        // +1 to include current index
+        swapIndex = rand() % (end + 1); 
         if(swapIndex == end) { continue; }
         // probably internally done using an XOR swap https://en.wikipedia.org/wiki/XOR_swap_algorithm
         //  of the chars in the string
         // Using the inbuilt swap is more elegant since we can interface an object type into this sort if needed
-        // This wont work with primitive types though
         swap(items[end], items[swapIndex]);
     }
 }
@@ -374,31 +374,38 @@ void mergeSort(string* items, int* count, int istart=0, int iend=DEVILS_NUMBER-1
 }
 
 // Essentially a sort of three items returning the index of the middle value's index
-int getiMiddleOfThree(string* items, int istart, int iend){
+int getiMiddleOfThree(string* items, int istart, int iend, int* counter){
     int iMedianOfThree;
     int imiddle = (istart + iend) / 2;
     // partial ordering shown after each comparison
+    (*counter)++;
     if(items[istart] < items[iend]){
         // istart, iend
+        (*counter)++;
         if (items[istart] >= items[imiddle]){
             // imiddle, istart, iend
             iMedianOfThree = istart;
         } else if (items[iend] < items[imiddle]){
+            (*counter)++;
             // istart, iend, imiddle
             iMedianOfThree = iend;
         } else {
+            (*counter)++;
             // istart, imiddle, iend
             iMedianOfThree = imiddle;
         }
     } else {
         // iend, istart
+        (*counter)++;
         if (items[istart] < items[imiddle]){
             // iend, istart, imiddle
             iMedianOfThree = istart;
         } else if (items[iend] > items[imiddle]) {
+            (*counter)++;
             // imiddle, iend, istart
             iMedianOfThree = iend;
         } else {
+            (*counter)++;
             // iend, imiddle, istart
             iMedianOfThree = imiddle;
         }
@@ -409,7 +416,7 @@ int getiMiddleOfThree(string* items, int istart, int iend){
 
 // places all elements to the right or left of the pivot depending on if they are greater
 int partition(string* items, int* counter, int istart, int iend){
-    int ipivot = getiMiddleOfThree(items, istart, iend);
+    int ipivot = getiMiddleOfThree(items, istart, iend, counter);
     string pivotVal = items[ipivot];
 
     // arbitrarily Swapping pivot to end to ignore it when swapping around pivot value
@@ -445,7 +452,6 @@ void quickSort(string* items, int* counter, int istart=0, int iend=DEVILS_NUMBER
     // Recursive calls for all elements around the pivot point
     quickSort(items, counter, istart, ipivot-1);
     quickSort(items, counter, ipivot+1, iend);
-
 }
 
 // helper function to display only part of the list
@@ -498,7 +504,7 @@ int main(){
 
     // Display for mergesort
     int mergeSortCounter = 0;
-    quickSort(magicItems, &mergeSortCounter);
+    mergeSort(magicItems, &mergeSortCounter);
     cout << "Showing first " << truncationCount << " sorted items by mergesort. Entire list sorted in ";
     cout << mergeSortCounter << " comparisons:" << endl;
     cTruncatedItems(magicItems, truncationCount);

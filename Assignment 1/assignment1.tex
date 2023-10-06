@@ -122,11 +122,13 @@ The stack class will need to have contain a pointer to the head (the top of the 
     \item Sets the new node to this head.
     \item Sets the new node's next value to the previous head (if there was one).
 \end{enumerate}
+\lstinputlisting[linerange={98-102}, firstnumber=98]{main.cpp}
 \textbf{Pop action:}
 \begin{enumerate}
     \item Make the new head the current head's next attribute.
     \item Return the value of now the old head node.
 \end{enumerate}
+\lstinputlisting[linerange={105-114}, firstnumber=105]{main.cpp}
 \textbf{isEmpty action:}
 \begin{enumerate}
     \item Returns if the head is currently points to a node.
@@ -142,11 +144,13 @@ it saves the queues from having to execute a linear time complexity operation wh
     \item Only if there was no head node, sets the new node equal to the head.
     \item Sets the previous tail's next value to the new node (if there was one).
 \end{enumerate}
+\lstinputlisting[linerange={47-62}, firstnumber=47]{main.cpp}
 \textbf{Dequeue action:}
 \begin{enumerate}
     \item Set the first to the current first's next attribute.
     \item Return the value of now the old head node.
 \end{enumerate}
+\lstinputlisting[linerange={66-79}, firstnumber=66]{main.cpp}
 \textbf{isEmpty action:}
 \begin{enumerate}
     \item Returns if the head is currently points to a node.
@@ -165,16 +169,106 @@ a palindrome.
 
 \section{Sorting}
 \subsection{Introduction}
-A collection of data (say n with length x) is said to be sorted when comparable elements are arranged in an order
+An array of data (say n with length x) is said to be sorted when comparable elements are arranged in an order
 such that:
 \[n_0 <= n_1 <= n_2 <= n_3 \dots <= n_{x-1} \]
 \[or\]
 \[n_0 >= n_1 >= n_2 >= n_3 \dots >= n_{x-1}\]
 For future algorithms such as binary search, this relationship is foundational.
 \subsection{The "Opposite" of Sorted}
-Conceptually, the opposite of a sorted collection is one in which the elements are
-randomly positioned. This does not mean the collection is not sorted, just that the elements
-are placed randomly. 
+Conceptually, the opposite of a sorted array is one in which the elements are
+randomly positioned. This does not mean the array is not sorted, just that the elements
+are placed randomly. One of the most intuitive random shuffling algorithms is the Fisher Yates Shuffle.
+It iterates through each index of the array picking a random index of out the current index and all indexes
+not yet iterated through.
+\lstinputlisting[linerange={225-240}, firstnumber=225]{main.cpp}
+\subsection{Selection Sort}
+Selection sort puts an array in an order using nested loops. The idea is to
+iterate through the array and each time find the minimal value from that index to the end index.
+After the minimal element is found swap it with the current index. This algorithm works in quadratic time
+because each the upper loop with have to carry out an inner loop relative to the size of the array.
+Even though the inner loop decreases in iterations as the sort progresses this is still quadratic time because
+number of the inner iterations depends in the size of the input; thus n * n comparisons (when n is size of the array),
+even if there are other constant factors. 
+\lstinputlisting[linerange={247-264}, firstnumber=247]{main.cpp}
+\subsection{Insertion Sort}
+Insertion sort utilizes an adaptive approach with nested loops. The idea is to
+iterate through the array starting at the second item and move each value 
+down the array until the correct previous item is found (this comparison changes depends on what type of ordering).
+This is adaptive as the second loop only continues until the a correctly positioned item is found.
+The time complexity of this algorithm is difficult to calculate directly as it depends on the order the items
+are in, but the worst case is that the inner loop will have to iterate all the back to the start each time.
+This places this algorithm in its worst case at the same situation as selection sort since both nested loops depend on the length
+of the array making this sort also have quadratic time complexity.
+\lstinputlisting[linerange={268-292}, firstnumber=268]{main.cpp}
+\subsection{Merge Sort}
+Merge sort utilizes a divide and conquer paradigm. It recursively splits the array in halves
+there are only subarrays of length 0 or 1. This guarantees that the subarrays start a sorted
+state since an array with length 0 or 1 is already in order. Now the algorithm can merge these
+subarrays back together creating large and larger subarrays at each step until it has
+merged the entire array together. Every divide step is constant time and there are \(log_2n \) because
+the array is halved each time. Each divide step must also be merged back together. There are n items to
+merge back together at each divide depth. Therefore, the time complexity is big oh of \(nlog_2n\). \\
+\newline
+The following code is an example merge function which purposefully uses more memory allocation
+to allow two individual lists to be taken as arguments and merged into one array. This
+approach may be helpful when the entire list will not be able to fit in memory.
+\lstinputlisting[linerange={300-335}, firstnumber=300]{main.cpp}
+The following code is an example recursive case for merge sort which splits the array.
+Usually the subarrays would be done in the previous function but since this implementation
+receives the subarrays as arguments it must be done in this step.
+\lstinputlisting[linerange={338-374}, firstnumber=338]{main.cpp}
+\subsection{Quick Sort}
+Quick sort also utilizes a divide and conquer (at the same time) paradigm. It recursively divides the array around
+a pivot value and during each partition arranges the subarrays in their correct order relative to
+only the pivot (not relative to the rest of the array or the other elements in the array). Once
+the sufficiently small partitions (length 1-3) have been sorted the array is now sorted because
+each value is relatively placed in the correct partition after each recursive call 
+(ideally the correct half of the subarrays but it will often not be perfect halves).
+It may be helpful to think the best case quick sort as a binary search for the correct position
+of the value for each element in the array. The time complexity for quick sort is also big oh of
+\(nlog_2n\) because there are a little more than \(log_2n \) partitions 
+(when a decent pivot value is chosen) and n comparisons for each partition to order the element around
+the partition at each depth.\\
+\newline
+The following code is used to obtain the median value of three indexes. This is needed to determine
+a pivot value that will not degrade the quick sort algorithm to a quadratic time complexity. Picking 
+a pivot value that is either the smallest value of the partition or the largest will order the rest 
+of the elements to one side of the partition which essentially only orders a single element. Thus, the
+median element of three elements from the partition ensure at least one item will be each side.
+Since the three pivot candidates are psuedo random on a shuffled array, the number of comparisons
+will change depending on the close the chosen pivot is to the true median of the partition.
+\lstinputlisting[linerange={377-412}, firstnumber=377]{main.cpp}
+The following code partitions a range of the array ordering it relative to the pivot point.
+\lstinputlisting[linerange={418-441}, firstnumber=418]{main.cpp}
+The following code recursively calls itself to partition each partition until sorted.
+\lstinputlisting[linerange={445-455}, firstnumber=445]{main.cpp}
+
+\subsection{Sort Overview}
+Each sort has its own advantages for certain scenarios: selection sort has low overhead and minimal
+swapping, insertion sort works great on sorted or almost sorted arrays, merge sort looks cool, and 
+quick sort is simply the GOAT. Merge sort and quick sort are both significantly better on large arrays
+because of their time complexity. Merge sort has more overhead than quick sort, but takes less comparisons. 
+Most inbuilt sorting algorithms end of using a hybrid of quick sort and insertion sort.
+\begin{center}
+\begin{tabular}{||c c c||} 
+ \hline
+ Type of Sort & Time Complexity & Number of Comparisons \\ [0.5ex] 
+ \hline\hline
+ Selection Sort & \( O(n^2)\) & \(221,445\) \\
+ \hline
+ Insertion Sort & \( O(n^2)\) & \(109,540^*\) \\
+ \hline
+ Merge Sort & \( O(nlog_2n)\) & \(5,399\) \\
+ \hline
+ Quick Sort & \( O(nlog_2n)\) & \(6,348^*\) \\
+ \hline
+\end{tabular}
+\\
+\(^*\)denotes adaptive comparison number
+\end{center}
+
+
 
 
 
