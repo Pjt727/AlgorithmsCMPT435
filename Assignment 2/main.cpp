@@ -6,8 +6,10 @@
         Copyright (C) 2023 Free Software Foundation, Inc.
 
     Special Thanks: 
-        My parents, my family, and friends. As well as Alan (of course).
-        Without them I dont know how I would have gotten through this assignment.
+        My C++ debugger, my desk rubber duck, my parents, family, friends, and of course
+        my professor and mentor Alan.
+        Without them I dont know how I would have gotten through this assignment. 
+            (or gotten assigned it in the first place)
 
     Date Due: 10/27/2023
 */
@@ -56,11 +58,10 @@ int getBinarySearchComparisons(string* items, string item, int length=DEVILS_NUM
     int iend = length - 1;
     int imiddle = (istart + iend) / 2;
     while(istart <= iend) {
-        // comparisonCount++; // Does this count as a comparison?
+        comparisonCount++;
         if(items[imiddle] == item) {
             break;
         }
-        comparisonCount++;
         if(items[imiddle] > item) {
             // item is to the left of the middle value
             iend = imiddle - 1;
@@ -74,6 +75,8 @@ int getBinarySearchComparisons(string* items, string item, int length=DEVILS_NUM
     return comparisonCount;
 }
 
+// Javascript frontend developers would need to npm install a package for this LOL
+// https://qz.com/646467/how-one-programmer-broke-the-internet-by-deleting-a-tiny-piece-of-code 
 string rightPad(int num, int size){
     string padded = to_string(num);
     int curLength = padded.length();
@@ -112,13 +115,14 @@ void cAllBinarySearchComparions(string* items, string* searchItems,
     }
     cout << endl;
     double average = round_prec(double(totalCount) / NUM_SEARCHES, -2);
-    cout << "The average amount of comparisons is: " << average << endl;;
+    cout << "The average amount of comparisons is: " << average << endl << endl;
 }
 
 
-// Only a string hash table bc the hashing function will other work for strings
+// Only a string hash table bc the hashing function will only work for strings
 class HashTable {
     private:
+        // Pointer to array of Nodes
         Node<string>** heads;
         Node<string>** tails;
         int hashSize;
@@ -138,8 +142,10 @@ class HashTable {
 
         int hash(string value){
             for (char& c : value) {
+                // independent of casing
                 c = std::toupper(c);
             }
+            // ascii sum of characters
             int asciiTotal = 0;
             for(char c: value){
                 asciiTotal += toascii(c);
@@ -151,13 +157,16 @@ class HashTable {
         }
 
         void add(string value){
+            // create new node
             auto newNode = new Node<string>;
             newNode->data = value;
             newNode->next = nullptr;
 
+            // hash node value to find which tail to add it to
             int hashValue = hash(value);
             Node<string>*& tail = tails[hashValue];
             if(tail == nullptr){
+                // case this hash value has no elements in it
                 Node<string>*& head = heads[hashValue];
                 head = newNode;
                 tail = newNode;
@@ -173,14 +182,11 @@ class HashTable {
             int comparisonCount = 1;
             Node<string>*& traversingNode = heads[hashValue];
             // although i'm not counting this comparison for elements that are here
-            //  I feel weird if I were to return 0 even though I check head
+            //  it feels weird if it were to return 0 even though the program checked head
             if(traversingNode == nullptr) { return comparisonCount; }
 
             while((traversingNode->data != value)){
                 traversingNode = traversingNode->next;
-                // Instead of this "comparisons" I could use a try catch
-                //  to handle the case where the program would try to access
-                //  the data attribute of a nullptr
                 if(traversingNode == nullptr) { break; }
                 comparisonCount++;
             }
@@ -200,7 +206,7 @@ void cAllHashTableComparisons(HashTable* hashTable, string* searchItems, int sea
     int totalCount = 0;
     for(int i=0; i < searchItemsLength; i++){
         int currentCount = hashTable->getComparisons(searchItems[i]);
-        cout << rightPad(currentCount, 3) << " comparisons to find " << searchItems[i] << endl;
+        cout << rightPad(currentCount, 2) << " comparisons to find " << searchItems[i] << endl;
         totalCount += currentCount;
     }
     cout << endl;

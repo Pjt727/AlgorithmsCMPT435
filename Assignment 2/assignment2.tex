@@ -97,9 +97,7 @@
 %----------------------------------------------------------------------------------------
 
 % - -- -  - -- -  - -- -  -
-\section{Common in-place Searches}
-It is often useful to search for elements without creating additional memory usage (besides constant space).
-In-place searches can be carried out on a large spread of different collection types with minimal overhead.
+\section{Linear and Binary Searches}
 \subsection{Linear Search}
 A linear search is one of the most flexible search algorithms. The only requirement of this search is that
 the collection of elements can be traversed and checked for equality. This algorithm simply goes through
@@ -110,6 +108,18 @@ For a binary search to be applicable, the collection must be sorted (therefore o
 and random access. An array of sorted elements is the most common data type in which a binary search
 can be done on. An array is random access because an element can be accessed at any time with its
 given index.\\
-This algorithm works by repeatably picking a midpoint within its bounds and then changes its bounds 
+\newline
+This algorithm works with the following process: (1) picking the midpoint of its bounds;
+(2) check equality between midpoint value and target if equal, element is found;
+(3) check whether midpoint value is greater/ lesser than target then set lower / upper bound to
+midpoint -1 / +1 and repeat to step 1 if the upper bound does is not equal or lower than the lower bound. 
+How the bounds change also depends on if the array is in ascending or descending order.
+The following is a code example of binary search on an ascending array.
+\section{Hashmap Search}
+\subsection{Prerequisites}
+For a hashmap search to be implemented the data has to be stored in well... a hashmap. A hashmap maps
+a value into a key. In an array implementation the key would be an index. 
+\section{Analysis of Searches}
+
 
 \end{document}
