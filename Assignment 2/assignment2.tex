@@ -118,7 +118,43 @@ The following is a code example of binary search on an ascending array.
 \section{Hashmap Search}
 \subsection{Prerequisites}
 For a hashmap search to be implemented the data has to be stored in well... a hashmap. A hashmap maps
-a value into a key. In an array implementation the key would be an index. 
+a value to a key with a hash function. In an array implementation the key would be an index. A hash function
+should be able to hash an indefinite number of inputs depending only on the constraints of the data type. 
+Ideally this mapping is 1 to 1, but practically mapping an indefinite number of inputs to a key requires
+also an indefinite amount of space to store the value at each given key. Thus, there may be collisions
+where values map to the same key; this will have to be dealt with through storing a collection with each key
+which can dynamically increase in size such as a linked list. The 
+
+\subsection{A Perfect Hash Function}
+A perfect hash function maps every valid value as a unique key. Let's see how many keys
+are needed to create a perfect hash function for 8 bit ascii strings. Each ascii character
+has $2^8$ or 256 different possibilities. So, if the hash function only hashes
+a single ascii character it will need 256 different keys. If the valid input is extended each
+additional character will multiply the number of different keys needed by 256 because there will be an
+additional 256 valid strings for each already existing combination. To be able to hash length 8
+strings there will need to be $256^8$ or $2^{64}$ keys. Each key will need 8 bytes
+(for instance, numbers\\ 0 through $2^{64}-1$) of information 
+to store it's position; it will also need an additional bit to store whether it exists in
+the hashmap (it will not need to store the string itself because that can be obtained from the key).
+In total, this hashmap will have to store $65 * 2^{64}$ bits. This is about 150 \textit{exabytes}. The amount
+of storage -- \textit{not even working memory} -- in all of the world's computer is estimated to be about double that. So, it is safe to say:
+prefect hashes are impractical.
+
+    
+
+\vspace{.25cm}
+\hrule
+\vspace{.25cm}
+\noindent
+Girl: \textit{I think we need to take some space from eachother.}\\
+Guy: \textit{Great! Then we'll spend more time together.}\\
+Girl: \textit{What?}\\
+Guy: \textit{It's a classic tradeoff: space versus time. "Taking space" will allow has to spend more time}.\\
+\textit{* 10 second pause *}\\
+Girl: \textit{I've been cheating on you for 5 years.}\\
+
+\hrule
+\vspace{1cm}
 \section{Analysis of Searches}
 
 
