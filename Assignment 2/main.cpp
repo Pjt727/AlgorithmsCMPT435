@@ -6,7 +6,7 @@
         Copyright (C) 2023 Free Software Foundation, Inc.
 
     Special Thanks: 
-        My parents, my family, and friends. As well as Dr. Labouseur (of course).
+        My parents, my family, and friends. As well as Alan (of course).
         Without them I dont know how I would have gotten through this assignment.
 
     Date Due: 10/27/2023
@@ -15,11 +15,23 @@ using namespace std;
 #include<iostream>
 #include<fstream>
 #include <iomanip>
+#include <cmath>
 #include "oldcode.h"
 #include<cstdlib>
 
 // Dirty dirty constant
 const int NUM_SEARCHES = 42; // Amount of linear and binary searches
+
+
+// helper round function for base 10 numbers
+// expected precision to be 10^precision digit
+// ex: 92.47 -> 92.5 is round on the -1 precision
+double round_prec(double num, int precision) {
+    num /= pow(10, precision);
+    num = round(num);
+    num *= pow(10, precision);
+    return num;
+}
 
 // linear search in linear time complexity, funny how that works out
 int getLinearSearchComparisons(string* items, string item, int length=DEVILS_NUMBER) {
@@ -42,7 +54,7 @@ int getBinarySearchComparisons(string* items, string item, int length=DEVILS_NUM
     int comparisonCount = 0;
     int istart = 0;
     int iend = length - 1;
-    int imiddle = (istart + iend) / 2; 
+    int imiddle = (istart + iend) / 2;
     while(istart <= iend) {
         // comparisonCount++; // Does this count as a comparison?
         if(items[imiddle] == item) {
@@ -83,7 +95,8 @@ void cAllLinearSearchComparions(string* items, string* searchItems,
         totalCount += currentCount;
     }
     cout << endl;
-    cout << "The average amount of comparisons is: " << double(totalCount) / NUM_SEARCHES << endl;;
+    double average = round_prec(double(totalCount) / NUM_SEARCHES, -2);
+    cout << "The average amount of comparisons is: " << average << endl;;
 }
 
 void cAllBinarySearchComparions(string* items, string* searchItems, 
@@ -98,7 +111,8 @@ void cAllBinarySearchComparions(string* items, string* searchItems,
         totalCount += currentCount;
     }
     cout << endl;
-    cout << "The average amount of comparisons is: " << double(totalCount) / NUM_SEARCHES << endl;;
+    double average = round_prec(double(totalCount) / NUM_SEARCHES, -2);
+    cout << "The average amount of comparisons is: " << average << endl;;
 }
 
 
@@ -131,7 +145,7 @@ class HashTable {
                 asciiTotal += toascii(c);
             }
             
-            // multiply the ascciTotal by a large prime number to
+            // multiply the asciiTotal by a large prime number to
             //  spread the ascii totals 
             return (asciiTotal * hashPrime) % hashSize;
         }
@@ -190,13 +204,12 @@ void cAllHashTableComparisons(HashTable* hashTable, string* searchItems, int sea
         totalCount += currentCount;
     }
     cout << endl;
-    cout << "The average amount of comparisons is: " << double(totalCount) / NUM_SEARCHES << endl;;
-
+    double average = round_prec(double(totalCount) / NUM_SEARCHES, -2);
+    cout << "The average amount of comparisons is: " << average << endl;;
 }
 
 
 int main(){
-    setprecision(2);
     string* magicItems = getMagicItems();
 
     string* searchItems = new string[NUM_SEARCHES];
