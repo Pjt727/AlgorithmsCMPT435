@@ -115,50 +115,228 @@ This algorithm works with the following process: (1) picking the midpoint of its
 midpoint -1 / +1 and repeat to step 1 if the upper bound does is not equal or lower than the lower bound. 
 How the bounds change also depends on if the array is in ascending or descending order.
 The following is a code example of binary search on an ascending array.
-\section{Hashmap Search}
+\section{Hash Table Search}
 \subsection{Overview}
-For a hashmap search to be implemented the data has to be stored in well... a hashmap. A hashmap maps
+For a hash table search to be implemented the data has to be stored in well... a hash table. A hash table maps
 a value to a key with a hash function. In an array implementation the key would be an index. A hash function
 should be able to hash an indefinite number of inputs depending only on the constraints of the data type. 
-Ideally this mapping is 1 to 1, but practically mapping an indefinite number of inputs to a key requires
-also an indefinite amount of space to store the value at each given key. Thus, there may be collisions
-where values map to the same key; this will have to be dealt with through storing a collection with each key
-which can dynamically increase in size such as a linked list. The search process of a hashmap is
-hashing the target value going to its collection and finding or not finding (usually through a linear search)
-the target value.
-
+Ideally this mapping is 1 to 1, but practically mapping an indefinite number of inputs to a key also requires
+an indefinite amount of space to store the value at each given key. Thus, there may be collisions
+where values map to the same key; this will have to be dealt with through storing a collection at each key
+which can dynamically increase in size such as a linked list. The search process of a hash table is
+hashing the target value then going to its collection and finding or not finding (usually through a linear search)
+the target in the chain.
 \subsection{A Perfect Hash Function}
-A perfect hash function maps every valid value as a unique key. Let's see how many keys
+A perfect hash function maps every valid value as a unique key. As an exercise, let's see how many keys
 are needed to create a perfect hash function for 8 bit ascii strings. Each ascii character
 has $2^8$ or 256 different possibilities. So, if the hash function only hashes
 a single ascii character it will need 256 different keys. If the valid input is extended each
 additional character will multiply the number of different keys needed by 256 because there will be an
 additional 256 valid strings for each already existing combination. To be able to hash length 8
 strings there will need to be $256^8$ or $2^{64}$ keys. Each key will need 8 bytes
-(for instance, numbers\\ 0 through $2^{64}-1$) of information 
-to store it's position; it will also need an additional bit to store whether it exists in
-the hashmap (it will not need to store the string itself because that can be obtained from the key).
-In total, this hashmap will have to store $65 * 2^{64}$ bits. This is about 150 \textit{exabytes}. The amount
+(for instance, numbers 0 through $2^{64}-1$) of information 
+to store its position; it will also need an additional bit to store whether it exists in
+the hash table (it will not need to store the string itself because that can be obtained from the key).
+In total, this hash table will be $65 * 2^{64}$ bits. This is about 150 \textit{exabytes}. The amount
 of storage -- \textit{not even working memory} -- in all of the world's computer is estimated to be about double that. So, it is safe to say:
-prefect hashes are impractical.
+prefect hashes are impractical for hash tables.
 \vspace{.25cm}
 \hrule
 \vspace{.25cm}
 \noindent
-Girl: \textit{I think we need to take some space from eachother.}\\
+Girl: \textit{I think we need to take some space from each other.}\\
 Guy: \textit{Great! Then we'll spend more time together.}\\
 Girl: \textit{What?}\\
-Guy: \textit{It's a classic tradeoff: space versus time. "Taking space" will allow has to spend more time}.\\
+Guy: \textit{It's a classic tradeoff: space versus time. "Taking space" will allow us to spend more time together}.\\
 \textit{* 10 second pause *}\\
 Girl: \textit{I've been cheating on you for 5 years.}\\
 \hrule
 \vspace{1cm}
 \subsection{Sample Hash Function}
-
+The following is an example of an imperfect hash that has hashSize keys (250 for later examples). This maps any string
+into an integer from 0 to hashSize-1. It does this through summing the ascii values (treating and alphabetical character as uppercase)
+and multiplying by a large prime and the finding the reminder after dividing by the hashSize. This modulo operation ensures the any arbitrarily
+large product is converted to an integer in the correct bounds. Multiplication by a large prime is done to spread the results across the keys.
+This a common technique as many hashing methods having trends in the added values that can result in trends in the indexes.
 \subsection{Sample Add Implementation}
-
-\subsection{}
+A hash table can be implemented with an array which is the same size as the amount of keys. In this implementation
+both an array for the heads of the linked list and the tails is created to ensure constant time $O(1)$ adding even if
+the hash function maps to the same index every time. Other implementations of adding to a hash table may have a 
+factor of the chain length of each index; a possible advantage could be ensuring each value is only stored once.
+This factor is often called the load factor or $\alpha$; it can
+be calculated by dividing the amount of elements added to the hash table by the amount of keys.
+In the above case adding would be $O(1 + \alpha)$ \\
+\newline
+\noindent
+The following code adds to the linked list at the tail much like an enqueue from a queue.
 \section{Analysis of Searches}
-
+\newpage
+\begin{center}
+    \bf{Linear Search}\\
+    \begin{tabular}{|| c c ||}
+    \hline
+    \bf{Comparisons} & \bf{Name} \\
+    \hline
+    575 & Sword of the Kauhns \\
+    65  & Blood Spear +2\\
+    234 & Fire Stones\\
+    370 & Manual of quickness of action +3\\
+    465 & Ring of Telepathic Bonds\\
+    224 & Feather token, fan\\
+    423 & Pipes of haunting\\
+    380 & Metal-morphic Hammer\\
+    233 & Fire Javelin\\
+    162 & Cup of Change\\
+    96  & Bracers of armor +6\\
+    66  & Bloodstone Ring\\
+    294 & Helm\\
+    316 & Hunter's Bow\\
+    253 & Gems of Darkness\\
+    570 & Sword of Life\\
+    187 & Dream Weaver\\
+    31  & Armatha's long sword\\
+    395 & Necklace of fireballs type III\\
+    435 & Potion of Liquefaction\\
+    620 & Troll Jar\\
+    581 & Teleport Ribbon\\
+    442 & Quicksilver Amulet\\
+    421 & Phylactery of faithfulness\\
+    177 & Dior Droid\\
+    101 & Breast plate of the champion\\
+    225 & Feather token, swan boat\\
+    364 & Manual of gainful exercise +2\\
+    326 & Ioun stone, orange\\
+    602 & Tome of leadership and influence +3\\
+    569 & Sword of Kings\\
+    40  & Backhand\\
+    14  & Amulet of mighty fists +2\\
+    94  & Bracers of armor +2\\
+    237 & Flail of Armor Disruption\\
+    606 & Tome of understanding +2\\
+    116 & Casters Aid\\
+    413 & Pearl of power, 9th-level spell\\
+    300 & Helm of underwater action\\
+    213 & Exploding Caltrops\\
+    58  & Belt of Keeping\\
+    654 & Wings of flying\\
+    \hline
+    Average: 308.26 & \\
+    \hline
+    \hline
+    \end{tabular}
+\end{center}
+% average is 308.26
+\newpage
+\begin{center}
+    \bf{Binary Search}\\
+    \begin{tabular}{|| c c ||}
+    \hline
+    \bf{Comparisons} & \bf{Name} \\
+    \hline
+    9  & Sword of the Kauhns\\
+    9  & Blood Spear +2\\
+    9  & Fire Stones\\
+    10 & Manual of quickness of action +3\\
+    8  & Ring of Telepathic Bonds\\
+    10 & Feather token, fan\\
+    8  & Pipes of haunting\\
+    9  & Metal-morphic Hammer\\
+    7  & Fire Javelin\\
+    10 & Cup of Change\\
+    9  & Bracers of armor +6\\
+    10 & Bloodstone Ring\\
+    9  & Helm\\
+    10 & Hunter's Bow\\
+    10 & Gems of Darkness\\
+    9  & Sword of Life\\
+    9  & Dream Weaver\\
+    9  & Armatha's long sword\\
+    5  & Necklace of fireballs type III\\
+    9  & Potion of Liquefaction\\
+    9  & Troll Jar\\
+    9  & Teleport Ribbon\\
+    7  & Quicksilver Amulet\\
+    7  & Phylactery of faithfulness\\
+    9  & Dior Droid\\
+    9  & Breast plate of the champion\\
+    8  & Feather token, swan boat\\
+    9  & Manual of gainful exercise +2\\
+    10 & Ioun stone, orange\\
+    9  & Tome of leadership and influence +3\\
+    8  & Sword of Kings\\
+    10 & Backhand\\
+    10 & Amulet of mighty fists +2\\
+    9  & Bracers of armor +2\\
+    10 & Flail of Armor Disruption\\
+    9  & Wings of flying\\
+    8  & Tome of understanding +2\\
+    9  & Casters Aid\\
+    8  & Pearl of power, 9th-level spell\\
+    10 & Helm of underwater action\\
+    9  & Exploding Caltrops\\
+    10 & Belt of Keeping \\
+    \hline
+    Average: 8.90 & \\
+    \hline
+    \hline
+    \end{tabular}
+    % average is 8.90
+\end{center}
+\newpage
+\begin{center}
+    \bf{Hash Table Search}\\
+    \begin{tabular}{|| c c ||}
+    \hline
+    \bf{Comparisons} & \bf{Name} \\
+    \hline
+    3  & Sword of the Kauhns\\
+    1  & Blood Spear +2\\
+    3  & Fire Stones\\
+    3  & Manual of quickness of action +3\\
+    2  & Ring of Telepathic Bonds\\
+    1  & Feather token, fan\\
+    6  & Pipes of haunting\\
+    1  & Metal-morphic Hammer\\
+    3  & Fire Javelin\\
+    3  & Cup of Change\\
+    1  & Bracers of armor +6\\
+    2  & Bloodstone Ring\\
+    2  & Helm\\
+    3  & Hunter's Bow\\
+    1  & Gems of Darkness\\
+    2  & Sword of Life\\
+    3  & Dream Weaver\\
+    1  & Armatha's long sword\\
+    3  & Necklace of fireballs type III\\
+    3  & Potion of Liquefaction\\
+    4  & Troll Jar\\
+    5  & Teleport Ribbon\\
+    2  & Quicksilver Amulet\\
+    2  & Phylactery of faithfulness\\
+    2  & Dior Droid\\
+    1  & Breast plate of the champion\\
+    3  & Feather token, swan boat\\
+    5  & Manual of gainful exercise +2\\
+    1  & Ioun stone, orange\\
+    2  & Tome of leadership and influence +3\\
+    2  & Sword of Kings\\
+    1  & Backhand\\
+    1  & Amulet of mighty fists +2\\
+    1  & Bracers of armor +2\\
+    1  & Flail of Armor Disruption\\
+    2  & Tome of understanding +2\\
+    1  & Casters Aid\\
+    3  & Pearl of power, 9th-level spell\\
+    2  & Helm of underwater action\\
+    1  & Exploding Caltrops\\
+    1  & Belt of Keeping\\
+    2  & Wings of flying\\
+    \hline
+    Average: 2.19 & \\
+    \hline
+    \hline
+    \end{tabular}
+\end{center}
+\newpage
 
 \end{document}
