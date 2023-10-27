@@ -102,12 +102,12 @@
 \subsection{Linear Search}
 A linear search is one of the most flexible search algorithms. The only requirement of this search is that
 the collection of elements can be traversed and checked for equality. This algorithm simply goes through
-each element and checks for equality. This algorithm works in linear time, $O(n)$, because in the worse
-case it checks every element for equality. \\
+each element and checks for equality. This algorithm works in linear time, $O(n)$, because, in the worse
+case, it checks every element for equality. \\
 \newline
 \noindent
 The following code implementation loops through an array keeping track of each iteration and returning
-once the element is found.
+once the element is found or all items are traversed.
 \lstinputlisting[linerange={39-52}, firstnumber=39]{main.cpp}
 
 \subsection{Binary Search}
@@ -123,8 +123,9 @@ given index.\\
 There's no joke about binary searches that is funny. Not even \textit{a bit.}\\
 \hrule
 \vspace{1cm}
+\noindent
 This algorithm works with the following process: (1) picking the midpoint of its bounds;
-(2) check equality between midpoint value and target if equal, element is found;
+(2) check equality between midpoint value and target if equal, element is found at search is complete;
 (3) check whether midpoint value is greater/ lesser than target then set lower / upper bound to
 midpoint -1 / +1 and repeat to step 1 if the upper bound does is not equal or lower than the lower bound. 
 How the bounds change also depends on if the array is in ascending or descending order.
@@ -134,7 +135,7 @@ The following is a code example of binary search on an ascending array.
 \subsection{Overview}
 For a hash table search to be implemented the data has to be stored in well... a hash table. A hash table maps
 a value to a key with a hash function. In an array implementation the key would be an index. A hash function
-should be able to hash an indefinite number of inputs depending only on the constraints of the data type. 
+should be able to hash an indefinite number of inputs depending only constrained by the data type itself. 
 Ideally this mapping is 1 to 1, but practically mapping an indefinite number of inputs to a key also requires
 an indefinite amount of space to store the value at each given key. Thus, there may be collisions
 where values map to the same key; this will have to be dealt with through storing a collection at each key
@@ -167,22 +168,23 @@ Girl: \textit{...}\\
 \vspace{1cm}
 \newpage
 \subsection{Sample Hash Function}
-The following is an example of an imperfect hash that has hashSize keys (250 for later examples). This maps any string
-into an integer from 0 to hashSize-1. It does this through summing the ascii values (treating alphabetical characters as uppercase)
+The following is an example of an imperfect hash that has hashSize different keys (250 for later examples). This maps any string
+into an integer from 0 to hashSize-1. It does this through summing the ascii values (treating all alphabetical characters as uppercase)
 and multiplying by a large prime and the finding the reminder after dividing by the hashSize. This modulo operation ensures any arbitrarily
 large product is converted to an integer in the correct bounds. Multiplication by a large prime is done to spread the results across the keys.
-This is a common technique as many hashing methods have trends in their values before mapping to a finite key range
-that can result in clustered keys.
+This is a common technique as many hashing methods have trends such that if the input values also have trends
+it can result in clustered keys.
 \lstinputlisting[linerange={143-157}, firstnumber=143]{main.cpp}
 
 \subsection{Sample Add Implementation}
-A hash table can be implemented with an array which is the same size as the amount of keys. In this implementation
-both an array for the heads of the linked list and the tails is created to ensure constant time $O(1)$ adding even if
-the hash function maps to the same index every time. Other implementations of adding to a hash table may have a 
+A hash table can be implemented with an array which is the same length as the amount of keys. In this implementation
+both an array for the heads of the linked list and the tails is created to ensure constant time $O(1)$ adding as well as 
+maintaining relative insertion order even if
+the chain of the a specific key grows indefinitely large. Other implementations of adding to a hash table may have a 
 factor of the chain length of each index; a possible advantage could be ensuring each value is only stored once.
 This factor is often called the load factor or $\alpha$; it can
 be calculated by dividing the amount of elements added to the hash table by the amount of keys.
-In the above case adding would be $O(1 + \alpha)$. \\
+In the this case adding would be $O(1 + \alpha)$. \\
 \newline
 \noindent
 \newpage
@@ -368,7 +370,7 @@ search's complexity, $O(log_2n)$, implies the comparisons will grow logarithmica
 This is true as the average is 8.90 which is a little less than $\lceil log_2666\rceil$.
 The ceiling is taken because the comparison start counting after the first equality check of midpoint;
 if the comparisons were counted only for greater or greater than or less than comparisons, the rare 
-case in which the target is found on the first equality check it would count 0 comparisons which
+case in which the target is found on the first equality check, it would count 0 comparisons which
 seems nonsensical. Regardless of how comparisons, the trend will still be logarithmic. Finally,
 the hash table's complexity, $O(1 + \alpha)$, implies the comparisons will grow with the load factor.
 The load factor for an input size of 666 and a key amount of 250 is $666/250\approx2.66$. The load factor
@@ -395,8 +397,8 @@ Girl: \textit{I've been cheating on you for 5 years.}\\
 \newpage
 \section{Display Listings}
 Javascript developers frontend developers seem to want a framework or library for everything.
-Here is an example of some code similar to what I wrote for displaying the output broke
-some websites: 
+Here is an example of a very small package for padding many javascript developers used as a 
+dependency and it ended up breaking their website:
 \url{https://qz.com/646467/how-one-programmer-broke-the-internet-by-deleting-a-tiny-piece-of-code.}
 \lstinputlisting[linerange={80-88}, firstnumber=80]{main.cpp}
 \vspace{.25cm}
@@ -408,6 +410,6 @@ What is the difference between a javascript developer and an Amazon warehouse em
 \hrule
 \vspace{1cm}
 \noindent
-The rest of the display code can be found in the online resources then \\assignment 2 $>$ main.cpp.
+The rest of the display code is self-documenting and can be found in the online resources then assignment 2 then main.cpp.
 
 \end{document}
