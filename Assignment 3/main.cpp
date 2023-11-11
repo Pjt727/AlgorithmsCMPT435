@@ -39,6 +39,15 @@ string leftPad(string toPad, int size){
     return toPad;
 }
 
+string rightPad(string toPad, int size){
+    int curLength = toPad.length();
+    while(curLength < size){
+        toPad += " ";
+        curLength++;
+    }
+    return toPad;
+}
+
 string middlePad(string toPad, int size){
     int curLength = toPad.length();
     bool doPadLeft = true;
@@ -213,8 +222,8 @@ class Graph {
             for( auto& pair : this->keysToIndex){
                 indexToKeys.insert({pair.second, pair.first});
             }
-            // as matrix 
-            cout << "Showing the graph as a matrix: " << endl << endl;
+            // displaying as matrix 
+            cout << endl << "Showing the graph as a matrix: " << endl << endl;
             // header row
             string columnSpacing = " ";
             for(int i = 0; i < maxKeyLength; i++){
@@ -240,6 +249,19 @@ class Graph {
                 }
                 cout << endl;
             }
+
+            // adjacency list
+            cout << endl << "Showing the graph as an adjacency list: " << endl << endl;
+            for(int i = 0; i < this->adjacencyList->size(); i++){
+                cout << leftPad("[" + indexToKeys[i] + "]", maxKeyLength + 2) << columnSpacing << columnSpacing;
+                for(auto& neighbor : (*this->adjacencyList)[i]){
+                    cout << rightPad(neighbor, maxKeyLength) << columnSpacing;
+                }
+                cout << endl;
+            }
+
+
+            // Results of searches on object graph
         }
 
         void newGraph(){
@@ -306,6 +328,8 @@ class Graph {
 void testGraph(){
     auto graph = new Graph();
     graph->readCommands();
+
+    // display the last one graph
     graph->display();
 }
 
