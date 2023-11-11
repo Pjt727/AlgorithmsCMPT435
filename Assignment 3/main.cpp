@@ -11,7 +11,7 @@
         my professor and mentor Alan.
         Without them I dont know how I would have gotten through this assignment. 
             (or gotten assigned it in the first place)
-
+    
     Date Due: 10/27/2023
 */
 #include<iostream>
@@ -28,34 +28,57 @@ struct Node{
     T data;
     Node<T>* left;
     Node<T>* right;
-    Node<T>* parent;
 };
 
+string leftPad(string toPad, int size){
+    int curLength = toPad.length();
+    while(curLength < size){
+        toPad = " " + toPad;
+        curLength++;
+    }
+    return toPad;
+}
+
+string middlePad(string toPad, int size){
+    int curLength = toPad.length();
+    bool doPadLeft = true;
+    while(curLength < size){
+        if(doPadLeft){
+            toPad = " " + toPad;
+        } else {
+            toPad += " ";
+        }
+        doPadLeft = !doPadLeft;
+        curLength++;
+    }
+    return toPad;
+}
+
 struct Vector{
-    string* id;
+    string id;
     vector<Vector*> neighbors;
 };
 
 class Graph {
     private:
-        int node_count = 0;
-        bool was_processed = false;
-        unordered_map<string, int> keys_to_index;
-        vector<vector<bool>>* matrix;
-        vector<string>* adjacency_list;
+        int nodeCount = 0;
+        bool wasProcessed = false;
+        unordered_map<string, int> keysToIndex;
+        vector<vector<bool>>* matrix = new vector<vector<bool>>;
+        vector<vector<string>>* adjacencyList = new vector<vector<string>>;
 
-        unordered_map<string, Vector*> keys_to_vector;
+        unordered_map<string, Vector*> keysToVector;
         Vector* origin = nullptr;
 
     public:
         // on delete of instance
         ~Graph() {
             delete matrix;
-            delete adjacency_list;
+            delete adjacencyList;
         }
 
-        void read_commands(string filepath = "./graphs1.txt"){
-            ifstream graphCommandStream("magicitems.txt");
+        void readCommands(string filepath = "./graphs1.txt"){
+            ifstream graphCommandStream(filepath);
             
             string buffer = "";
 
@@ -83,7 +106,8 @@ class Graph {
                         break;
                     case NEW:
                         if(buffer == "graph"){
-                            this->new_graph();
+                            this->newGraph();
+                            context = NONE;
                             buffer = "";
                             goto NEXT_CHAR;
                         }
@@ -102,7 +126,7 @@ class Graph {
                     case VERTEX:
                         // can support other end commands like ; for instance
                         if(ch == '\n'){
-                            this->add_node(&buffer);
+                            this->addNode(&buffer);
                             context = NONE;
                             buffer = "";
                             goto NEXT_CHAR;
@@ -112,13 +136,11 @@ class Graph {
                         // can support other end commands like ; for instance
                         if(ch == '\n'){
                             auto keys = split_keys(&buffer);
-                            this->add_edge(&keys.first, &keys.second);
-                            delete &keys;
+                            this->addEdge(&keys.first, &keys.second);
                             context = NONE;
                             buffer = "";
                             goto NEXT_CHAR;
                         }
-
                         break;
                 }
 
@@ -126,12 +148,12 @@ class Graph {
                 if(buffer == "--"){
                     // line is commented
                     buffer = "";
-                    context = NONE;
+                    context = COMMENT;
                     goto NEXT_CHAR;
                 }
-
                 // will usually short circuit next two checks
                 if(buffer == "new" && context == NONE){ 
+
                     context = NEW;
                     buffer = "";
                     goto NEXT_CHAR;
@@ -141,11 +163,12 @@ class Graph {
                     buffer = "";
                     goto NEXT_CHAR;
                 }
-
-                buffer += ch;
+                if(ch != '\n'){
+                    buffer += ch;
+                }
             }
             // Because buffer is passed to other functions I think I need to delete it 
-            delete &buffer;
+            // delete &buffer;
             graphCommandStream.close();
         }
 
@@ -158,61 +181,132 @@ class Graph {
             for(int* i = &runningIndex; (*i) < inputSize; (*i)++){
                 c = input->at((*i));
                 if(c == ' '){ continue; }
-                if(c == deliminator){ continue; }
+                if(c == deliminator){ 
+                    (*i)++;
+                    break;
+                }
                 key1 += c;
             }
             for(int* i = &runningIndex; (*i) < inputSize; (*i)++){
                 c = input->at((*i));
                 if(c == ' '){ continue; }
-                if(c == deliminator){ continue; }
                 key2 += c;
             }
 
             return make_pair(key1, key2);
         }
 
-        void new_graph(){
+        // Ideally traversal specific data should not be imbedded in the objects themselves
+        void display(){
 
+            // find max length key for padding and init a seen hashmap for traversals
+            int maxKeyLength = 0;
+            unordered_map<string, bool> isSeen;
+            for(auto& keyIndex : this->keysToIndex){
+                isSeen.insert({keyIndex.first, false});
+                if(keyIndex.first.length() > maxKeyLength){
+                    maxKeyLength = keyIndex.first.length();
+                }
+            }
+            // reverse map for keysToIndex
+            unordered_map<int, string> indexToKeys;
+            for( auto& pair : this->keysToIndex){
+                indexToKeys.insert({pair.second, pair.first});
+            }
+            // as matrix 
+            cout << "Showing the graph as a matrix: " << endl << endl;
+            // header row
+            string columnSpacing = " ";
+            for(int i = 0; i < maxKeyLength; i++){
+                cout << " ";
+            }
+            cout << columnSpacing;
+            for(int i = 0; i < this->matrix->size(); i++){
+                cout << middlePad(indexToKeys[i], maxKeyLength);
+                cout << columnSpacing;
+            }
+            cout << endl;
+            // rest of rows
+            string representation;
+            for(int i = 0; i < this->matrix->size(); i++){
+                cout << leftPad(indexToKeys[i], maxKeyLength) << columnSpacing;
+                for(const bool& isOnNeighbor : (*this->matrix)[i]){
+                    if(isOnNeighbor){
+                        representation = "1";
+                    } else {
+                        representation = ".";
+                    }
+                    cout << middlePad(representation, maxKeyLength) << columnSpacing;
+                }
+                cout << endl;
+            }
+        }
+
+        void newGraph(){
+            if(this->wasProcessed){
+                this->display();
+
+                // default settings
+                this->keysToIndex.clear();
+                this->keysToVector.clear(); // need to manually delete Vectors objects
+                this->matrix->clear();
+                this->adjacencyList->clear();
+                this->origin = nullptr;
+                this->nodeCount = 0;
+            }
+
+            this->wasProcessed = true;
         }
 
         // Only need to add to the maps
-        void add_node(string* key){
+        void addNode(string* key){
             Vector* newVector = new Vector;
-            newVector->id = key;
+            newVector->id = (*key);
+            newVector->neighbors = (*new vector<Vector*>);
             if( origin == nullptr){
                 origin = newVector;
             }
+            keysToIndex.insert({(*key), this->nodeCount});
+            keysToVector.insert({(*key), newVector});
+            nodeCount++;
 
-            keys_to_index.insert({(*key), node_count});
-            keys_to_vector.insert({(*key), newVector});
-
-            node_count++;
+            // Resize vectors to fit all nodes 
+            adjacencyList->resize(nodeCount);
+            matrix->resize(nodeCount);
+            for(auto& neighbors : (*matrix)){
+                neighbors.resize(nodeCount);
+            }
         }
 
         // Add an undirected link between keys
-        void add_edge(string* key1, string* key2){
+        void addEdge(string* key1, string* key2){
             // Getting indexes for keys
-            int indexKey1 = keys_to_index[(*key1)];
-            int indexKey2 = keys_to_index[(*key2)];
+            int indexKey1 = keysToIndex[(*key1)];
+            int indexKey2 = keysToIndex[(*key2)];
 
             // Adding edge on matrix
-            matrix[indexKey1][indexKey2].push_back(true);
-            matrix[indexKey2][indexKey1].push_back(true);
+            (*matrix)[indexKey1][indexKey2] = true;
+            (*matrix)[indexKey2][indexKey1] = true;
 
             // adding edge on adjacency list
-            adjacency_list[indexKey1].push_back((*key2));
-            adjacency_list[indexKey2].push_back((*key1));
+            (*adjacencyList)[indexKey1].push_back((*key2));
+            (*adjacencyList)[indexKey2].push_back((*key1));
 
             // Getting Vectors for keys
-            Vector* vectorKey1 = keys_to_vector[(*key1)];
-            Vector* vectorKey2 = keys_to_vector[(*key2)];
+            Vector* vectorKey1 = keysToVector[(*key1)];
+            Vector* vectorKey2 = keysToVector[(*key2)];
+
+
             vectorKey1->neighbors.push_back(vectorKey2);
             vectorKey2->neighbors.push_back(vectorKey1);
         }
 };
 
+
 void testGraph(){
     auto graph = new Graph();
+    graph->readCommands();
+    graph->display();
 }
 
 int main(){

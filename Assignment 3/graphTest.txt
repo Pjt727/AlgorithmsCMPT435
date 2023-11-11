@@ -1,0 +1,20 @@
+new graph
+add vertex vertex1
+add vertex vertex2
+add vertex vertex3
+add vertex vertex4
+add vertex vertex5
+add vertex vertex6
+add vertex vertex7
+add edge vertex1 - vertex2
+add edge vertex1 - vertex5
+add edge vertex1 - vertex6
+add edge vertex2 - vertex3
+add edge vertex2 - vertex5
+add edge vertex2 - vertex6
+add edge vertex3 - vertex4
+add edge vertex4 - vertex5
+add edge vertex5 - vertex6
+add edge vertex5 - vertex7
+add edge vertex6 - vertex7
+new graph
