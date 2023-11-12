@@ -19,15 +19,22 @@
 #include<vector>
 #include<cstdlib>
 #include<ctime>
+#include "oldcode.h"
 #include<unordered_map>
 
 using namespace std;
 
 template <typename T>
-struct Node{
+struct BinNode{
     T data;
     Node<T>* left;
     Node<T>* right;
+};
+
+
+struct Vertex{
+    string id;
+    vector<Vertex*> neighbors;
 };
 
 string leftPad(string toPad, int size){
@@ -63,11 +70,6 @@ string middlePad(string toPad, int size){
     return toPad;
 }
 
-struct Vector{
-    string id;
-    vector<Vector*> neighbors;
-};
-
 class Graph {
     private:
         int nodeCount = 0;
@@ -76,8 +78,8 @@ class Graph {
         vector<vector<bool>>* matrix = new vector<vector<bool>>;
         vector<vector<string>>* adjacencyList = new vector<vector<string>>;
 
-        unordered_map<string, Vector*> keysToVector;
-        Vector* origin = nullptr;
+        unordered_map<string, Vertex*> keysToVector;
+        Vertex* origin = nullptr;
 
     public:
         // on delete of instance
@@ -205,14 +207,10 @@ class Graph {
             return make_pair(key1, key2);
         }
 
-        // Ideally traversal specific data should not be imbedded in the objects themselves
         void display(){
-
             // find max length key for padding and init a seen hashmap for traversals
             int maxKeyLength = 0;
-            unordered_map<string, bool> isSeen;
             for(auto& keyIndex : this->keysToIndex){
-                isSeen.insert({keyIndex.first, false});
                 if(keyIndex.first.length() > maxKeyLength){
                     maxKeyLength = keyIndex.first.length();
                 }
@@ -225,43 +223,98 @@ class Graph {
             // displaying as matrix 
             cout << endl << "Showing the graph as a matrix: " << endl << endl;
             // header row
-            string columnSpacing = " ";
+            const string COLUMN_SPACING = " ";
             for(int i = 0; i < maxKeyLength; i++){
                 cout << " ";
             }
-            cout << columnSpacing;
+            cout << COLUMN_SPACING;
             for(int i = 0; i < this->matrix->size(); i++){
                 cout << middlePad(indexToKeys[i], maxKeyLength);
-                cout << columnSpacing;
+                cout << COLUMN_SPACING;
             }
             cout << endl;
             // rest of rows
             string representation;
             for(int i = 0; i < this->matrix->size(); i++){
-                cout << leftPad(indexToKeys[i], maxKeyLength) << columnSpacing;
+                cout << leftPad(indexToKeys[i], maxKeyLength) << COLUMN_SPACING;
                 for(const bool& isOnNeighbor : (*this->matrix)[i]){
                     if(isOnNeighbor){
                         representation = "1";
                     } else {
                         representation = ".";
                     }
-                    cout << middlePad(representation, maxKeyLength) << columnSpacing;
+                    cout << middlePad(representation, maxKeyLength) << COLUMN_SPACING;
                 }
                 cout << endl;
             }
 
             // adjacency list
+
             cout << endl << "Showing the graph as an adjacency list: " << endl << endl;
             for(int i = 0; i < this->adjacencyList->size(); i++){
-                cout << leftPad("[" + indexToKeys[i] + "]", maxKeyLength + 2) << columnSpacing << columnSpacing;
+                cout << leftPad("[" + indexToKeys[i] + "]", maxKeyLength + 2) << COLUMN_SPACING << COLUMN_SPACING;
                 for(auto& neighbor : (*this->adjacencyList)[i]){
-                    cout << rightPad(neighbor, maxKeyLength) << columnSpacing;
+                    cout << rightPad(neighbor, maxKeyLength) << COLUMN_SPACING;
                 }
                 cout << endl;
             }
 
 
             // Results of searches on object graph
+            unordered_map<string, bool> isSeen;
+            for(auto& keyIndex : this->keysToIndex){
+                isSeen.insert({keyIndex.first, false});
+            }
+            string dfsPath = "";
+            generateDfsPath(this->origin, &isSeen, &dfsPath);
+            cout << "The path of DFS search starting at the first inserting vertex is:" << endl;
+            cout << dfsPath << endl << endl;
+
+            cout << "The path of BFS search starting at the first inserting vertex is:" << endl;
+            string bfsPath = getBfsPath(this->origin);
+            cout << bfsPath << endl;
+        }
+
+        // Ideally traversal specific data should not be imbedded in the objects themselves
+        void generateDfsPath(Vertex* curVertex, unordered_map<string, bool>* isSeen, string* runningPath){
+            const string DELIMINATOR = " ";
+            if(!(*isSeen)[curVertex->id]){
+                (*runningPath) += curVertex->id + DELIMINATOR;
+                (*isSeen)[curVertex->id] = true;
+            }
+            for(auto& neighbor : curVertex->neighbors){
+                if(!(*isSeen)[neighbor->id]){
+                    generateDfsPath(neighbor, isSeen, runningPath);
+                }
+            }
+        }
+
+        string getBfsPath(Vertex* startVertex){
+            const string DELIMINATOR = " ";
+            string runningPath = "";
+
+            // Creating hashmap fro seen vertices 
+            unordered_map<string, bool> isSeen;
+            for(auto& keyIndex : this->keysToIndex){
+                isSeen.insert({keyIndex.first, false});
+            }
+
+            // Traversing node in queue starting with the input
+            //    and then enqueuing each neighbor
+            Queue<Vertex*>* vertices = new Queue<Vertex*>();
+            vertices->enqueue(startVertex);
+            isSeen[startVertex->id] = true;
+            while(!vertices->isEmpty()){
+                auto curVertex = vertices->dequeue();
+                runningPath += curVertex->id + DELIMINATOR;
+                for(auto& neighbor : curVertex->neighbors){
+                    if(!isSeen[neighbor->id]){
+                        vertices->enqueue(neighbor);
+                        isSeen[neighbor->id] = true;
+                    }
+                }
+            }
+            return runningPath;
         }
 
         void newGraph(){
@@ -282,9 +335,9 @@ class Graph {
 
         // Only need to add to the maps
         void addNode(string* key){
-            Vector* newVector = new Vector;
+            Vertex* newVector = new Vertex;
             newVector->id = (*key);
-            newVector->neighbors = (*new vector<Vector*>);
+            newVector->neighbors = (*new vector<Vertex*>);
             if( origin == nullptr){
                 origin = newVector;
             }
@@ -315,8 +368,8 @@ class Graph {
             (*adjacencyList)[indexKey2].push_back((*key1));
 
             // Getting Vectors for keys
-            Vector* vectorKey1 = keysToVector[(*key1)];
-            Vector* vectorKey2 = keysToVector[(*key2)];
+            Vertex* vectorKey1 = keysToVector[(*key1)];
+            Vertex* vectorKey2 = keysToVector[(*key2)];
 
 
             vectorKey1->neighbors.push_back(vectorKey2);
