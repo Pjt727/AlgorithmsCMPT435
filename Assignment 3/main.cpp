@@ -27,8 +27,8 @@ using namespace std;
 template <typename T>
 struct BinNode{
     T data;
-    Node<T>* left;
-    Node<T>* right;
+    BinNode<T>* left;
+    BinNode<T>* right;
 };
 
 
@@ -382,6 +382,86 @@ class Graph {
         }
 };
 
+template <typename T>
+class BinarySearchTree {
+    private:
+        BinNode<T>* head = nullptr;
+    
+    public:
+        void cInsert(T data, int maxDataLength){
+            string DELIMINATOR = " ";
+            string runningPath = rightPad(data + ": ", maxDataLength + 2);
+            BinNode<T>* newNode = new BinNode<T>;
+            newNode->data = data;
+            newNode->left = nullptr;
+            newNode->right = nullptr;
+
+            // empty case
+            if(head == nullptr){
+                head = newNode;
+                return;
+            }
+
+            // trailing node to get previous after termination
+            BinNode<T>* trailingNode;
+            BinNode<T>* consideredNode = head;
+            // terminates when left or right is null
+            while(consideredNode != nullptr){
+                trailingNode = consideredNode;
+                if(data >= consideredNode->data){
+                    runningPath += "L" + DELIMINATOR;
+                    consideredNode = consideredNode->right;
+                } else {
+                    runningPath += "R" + DELIMINATOR;
+                    consideredNode = consideredNode->left;
+                }
+            }
+            // recheck check side
+            // if comparison is expensive can store a bool from
+            //  the while instead of rechecking
+            if(data >= trailingNode->data){
+                trailingNode->right = newNode;
+            } else {
+                trailingNode->left = newNode;
+            }
+
+            cout << runningPath << endl;
+        }
+
+        int cSearch(T data, int maxDataLength){
+            string DELIMINATOR = " ";
+            string runningPath = rightPad(data + ": ", maxDataLength + 2);
+            auto consideredNode = head;
+            // start at one for the first while check
+            int comparisonCount = 1;
+            while(consideredNode != nullptr && consideredNode->data != data){
+                comparisonCount++;
+                if(data >= consideredNode->data){
+                    runningPath += "R" + DELIMINATOR;
+                    consideredNode = consideredNode->right;
+                } else {
+                    runningPath += "L" + DELIMINATOR;
+                    consideredNode = consideredNode->left;
+                }
+            }
+
+            cout << rightPad(to_string(comparisonCount), 2) << " comparisons for " << runningPath << endl;
+
+            return comparisonCount;
+        }
+
+        void cInOrderTraversal(BinNode<T>* node){ 
+            if(node == nullptr) { return; }
+            cInOrderTraversal(node->left);
+            cout << node->data << endl;
+            cInOrderTraversal(node->right);
+        }
+
+        BinNode<T>* getHead(){
+            return this->head;
+        }
+};
+
 
 void testGraph(){
     auto graph = new Graph();
@@ -391,6 +471,48 @@ void testGraph(){
     graph->display();
 }
 
+void testBST(){
+    auto allMagicItems = getMagicItems("./magicitems.txt");
+    auto magicItemsInBst = getMagicItems("./magicitems-find-in-bst.txt");
+    auto bst = new BinarySearchTree<string>();
+    
+    // getting max length for the display to look better
+    int allMaxLength = 0;
+    int curLength;
+    for(auto magicItem : (*allMagicItems)){
+        curLength = magicItem.length();
+        if(curLength > allMaxLength){
+            allMaxLength = curLength;
+        }
+    }
+
+    // adding all items to bst
+    cout << "Showing insertions for all magic items" << endl << endl;
+    for(auto magicItem : (*allMagicItems)){
+        bst->cInsert(magicItem, allMaxLength);
+    }
+
+    // Pre-order traversal
+    cout << endl << "Showing in-order traversal of magic items" << endl << endl;
+    bst->cInOrderTraversal(bst->getHead());
+
+    // getting max of other magic items for the display to look better
+    int bstMaxLength = 0;
+    for(auto magicItem : (*magicItemsInBst)){
+        curLength = magicItem.length();
+        if(curLength > bstMaxLength){
+            bstMaxLength = curLength;
+        }
+    }
+
+    cout << endl << "Showing searches for bst magic times" << endl << endl;
+    for(auto magicItem : (*magicItemsInBst)){
+        bst->cSearch(magicItem, bstMaxLength);
+    }
+
+}
+
 int main(){
     testGraph();
+    testBST();
 }

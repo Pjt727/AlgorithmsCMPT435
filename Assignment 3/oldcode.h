@@ -1,19 +1,27 @@
 #include<iostream>
 #include<fstream>
 #include <iomanip>
+#include <cmath>
 using namespace std;
 
-const int DEVILS_NUMBER = 666;
+// helper round function for base 10 numbers
+// expected precision to be 10^precision digit
+// ex: 92.47 -> 92.5 is round on the -1 precision
+double round_prec(double num, int precision) {
+    num /= pow(10, precision);
+    num = round(num);
+    num *= pow(10, precision);
+    return num;
+}
 
 // reading in magic items from relative path
-string* getMagicItems(string filepath){
-    string* magicItems= new string[DEVILS_NUMBER];
+// refactored into vector
+vector<string>* getMagicItems(string filepath){
+    vector<string>* magicItems= new vector<string>;
     ifstream magicItemsStream(filepath);
     string line; 
-    int i = 0;
     while(getline(magicItemsStream, line)){
-        magicItems[i] = line;
-        i++;
+        magicItems->push_back(line);
     }
     magicItemsStream.close();
     return magicItems;
