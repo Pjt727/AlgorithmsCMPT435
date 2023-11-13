@@ -93,7 +93,7 @@ class Graph {
             
             string buffer = "";
 
-            enum CommandContext { NEW, ADD, VERTEX, EDGE, COMMENT, NONE };
+            enum CommandContext { NEW, ADD, VERTEX, EDGE, NONE };
             CommandContext context = NONE;
             char ch;
 
@@ -101,30 +101,14 @@ class Graph {
             //    This would read over reach line at least twice
 
             // GOTO are used bc of switch that is nested (even when continues would work for consistency)
-            bool isEndFile = true;
-            NEXT_CHAR:while(isEndFile){
+            bool isCharLeft = true;
+            NEXT_CHAR:while(isCharLeft){
                 //  because big mean Alan did not end of the file with a new line (which is best practice)
                 //      I have to also check for end of file can process in that case as well
                 if(!(graphCommandStream >> noskipws >> ch)){
-                    isEndFile = false;
-                    cout << endl;
-                    cout << endl;
-                    cout << endl;
-                    cout << endl;
-                    cout << buffer << endl;
-                    cout << endl;
-                    cout << endl;
-                    cout << endl;
-                    cout << endl;
-                    goto ALAN_IS_MEAN; // Alan is mean
-                }
-                if(context == COMMENT){
-                    if(ch == '\n'){
-                        context = NONE;
-                        // buffer will always "" in sample graphs text but this seems reasonable
-                        buffer = "";
-                    }
-                    goto NEXT_CHAR;
+                    isCharLeft = false;
+                    // need to jump over the check that adds buffer
+                    goto ALAN_IS_MEAN;
                 }
                 
                 // only process command when command is finished on \n and whitespace
@@ -132,7 +116,6 @@ class Graph {
                     buffer += ch;
                     goto NEXT_CHAR;
                 }
-
 
                 // context actions
                 ALAN_IS_MEAN:switch(context){
@@ -159,7 +142,7 @@ class Graph {
                         break;
                     case VERTEX:
                         // can support other end commands like ; for instance or end of file
-                        if(ch == '\n' || !isEndFile){
+                        if(ch == '\n' || !isCharLeft){
                             this->addNode(&buffer);
                             context = NONE;
                             buffer = "";
@@ -168,7 +151,7 @@ class Graph {
                         break;
                     case EDGE:
                         // can support other end commands like ; for instance or end of file
-                        if(ch == '\n' || !isEndFile){
+                        if(ch == '\n' || !isCharLeft){
                             auto keys = split_keys(&buffer);
                             this->addEdge(&keys.first, &keys.second);
                             context = NONE;
@@ -182,17 +165,20 @@ class Graph {
                 if(buffer == "--"){
                     // line is commented
                     buffer = "";
-                    context = COMMENT;
+                    // find end of line or file
+                    while(graphCommandStream >> noskipws >> ch){
+                        if(ch == '\n'){ break; }
+                    }
                     goto NEXT_CHAR;
                 }
                 // will usually short circuit next two checks
-                if(buffer == "new" && context == NONE){ 
+                if(buffer == "new"){ 
 
                     context = NEW;
                     buffer = "";
                     goto NEXT_CHAR;
                 }
-                if(buffer == "add" && context == NONE){ 
+                if(buffer == "add"){ 
                     context = ADD;
                     buffer = "";
                     goto NEXT_CHAR;
@@ -286,10 +272,10 @@ class Graph {
             }
             string dfsPath = "";
             generateDfsPath(this->origin, &isSeen, &dfsPath);
-            cout << "The path of DFS search starting at the first inserting vertex is:" << endl;
+            cout << endl << "The path of DFS starting at the first inserted vertex is:" << endl;
             cout << dfsPath << endl << endl;
 
-            cout << "The path of BFS search starting at the first inserting vertex is:" << endl;
+            cout << "The path of BFS starting at the first inserted vertex is:" << endl;
             string bfsPath = getBfsPath(this->origin);
             cout << bfsPath << endl;
         }
