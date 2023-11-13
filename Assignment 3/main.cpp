@@ -101,7 +101,23 @@ class Graph {
             //    This would read over reach line at least twice
 
             // GOTO are used bc of switch that is nested (even when continues would work for consistency)
-            NEXT_CHAR:while(graphCommandStream >> noskipws >> ch){
+            bool isEndFile = true;
+            NEXT_CHAR:while(isEndFile){
+                //  because big mean Alan did not end of the file with a new line (which is best practice)
+                //      I have to also check for end of file can process in that case as well
+                if(!(graphCommandStream >> noskipws >> ch)){
+                    isEndFile = false;
+                    cout << endl;
+                    cout << endl;
+                    cout << endl;
+                    cout << endl;
+                    cout << buffer << endl;
+                    cout << endl;
+                    cout << endl;
+                    cout << endl;
+                    cout << endl;
+                    goto ALAN_IS_MEAN; // Alan is mean
+                }
                 if(context == COMMENT){
                     if(ch == '\n'){
                         context = NONE;
@@ -110,9 +126,16 @@ class Graph {
                     }
                     goto NEXT_CHAR;
                 }
+                
+                // only process command when command is finished on \n and whitespace
+                if((ch != '\n' && ch != ' ')){
+                    buffer += ch;
+                    goto NEXT_CHAR;
+                }
+
 
                 // context actions
-                switch(context){
+                ALAN_IS_MEAN:switch(context){
                     case NONE:
                         break;
                     case NEW:
@@ -135,8 +158,8 @@ class Graph {
                         }
                         break;
                     case VERTEX:
-                        // can support other end commands like ; for instance
-                        if(ch == '\n'){
+                        // can support other end commands like ; for instance or end of file
+                        if(ch == '\n' || !isEndFile){
                             this->addNode(&buffer);
                             context = NONE;
                             buffer = "";
@@ -144,8 +167,8 @@ class Graph {
                         }
                         break;
                     case EDGE:
-                        // can support other end commands like ; for instance
-                        if(ch == '\n'){
+                        // can support other end commands like ; for instance or end of file
+                        if(ch == '\n' || !isEndFile){
                             auto keys = split_keys(&buffer);
                             this->addEdge(&keys.first, &keys.second);
                             context = NONE;
@@ -174,12 +197,8 @@ class Graph {
                     buffer = "";
                     goto NEXT_CHAR;
                 }
-                if(ch != '\n'){
-                    buffer += ch;
-                }
             }
-            // Because buffer is passed to other functions I think I need to delete it 
-            // delete &buffer;
+
             graphCommandStream.close();
         }
 
