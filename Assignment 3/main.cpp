@@ -3,6 +3,7 @@
     Author: Patrick Tyler
 
     Compiled with g++:
+        ex: `g++ ./main.cpp`
         g++.exe (Rev6, Built by MSYS2 project) 13.1.0
         Copyright (C) 2023 Free Software Foundation, Inc.
 
@@ -188,6 +189,7 @@ class Graph {
             graphCommandStream.close();
         }
 
+        // skips spaces, key2 starts after -
         pair<string, string> split_keys(string* input, char deliminator = '-'){
             string key1 = "";
             string key2 = "";
@@ -281,6 +283,7 @@ class Graph {
         }
 
         // Ideally traversal specific data should not be imbedded in the objects themselves
+        //     Therefore maps are used to tell if a vertex has been visited
         void generateDfsPath(Vertex* curVertex, unordered_map<string, bool>* isSeen, string* runningPath){
             const string DELIMINATOR = " ";
             if(!(*isSeen)[curVertex->id]){
@@ -319,6 +322,7 @@ class Graph {
                     }
                 }
             }
+            delete vertices;
             return runningPath;
         }
 
@@ -328,7 +332,13 @@ class Graph {
 
                 // default settings
                 this->keysToIndex.clear();
-                this->keysToVector.clear(); // need to manually delete Vectors objects
+
+                // need to manually delete Vectors bc they are pointers
+                //      rust wouldn't let you make compile a memory mistake here
+                for(auto pair : keysToVector){
+                    delete pair.second;
+                }
+                this->keysToVector.clear();
                 this->matrix->clear();
                 this->adjacencyList->clear();
                 this->origin = nullptr;
@@ -363,6 +373,7 @@ class Graph {
             // Getting indexes for keys
             int indexKey1 = keysToIndex[(*key1)];
             int indexKey2 = keysToIndex[(*key2)];
+
 
             // Adding edge on matrix
             (*matrix)[indexKey1][indexKey2] = true;
@@ -399,6 +410,7 @@ class BinarySearchTree {
             // empty case
             if(head == nullptr){
                 head = newNode;
+                cout << runningPath << "HEAD" << endl;
                 return;
             }
 
@@ -409,10 +421,10 @@ class BinarySearchTree {
             while(consideredNode != nullptr){
                 trailingNode = consideredNode;
                 if(data >= consideredNode->data){
-                    runningPath += "L" + DELIMINATOR;
+                    runningPath += "R" + DELIMINATOR;
                     consideredNode = consideredNode->right;
                 } else {
-                    runningPath += "R" + DELIMINATOR;
+                    runningPath += "L" + DELIMINATOR;
                     consideredNode = consideredNode->left;
                 }
             }
@@ -505,10 +517,16 @@ void testBST(){
         }
     }
 
+    float totalNum = 0;
+    float runningSum = 0;
     cout << endl << "Showing searches for bst magic times" << endl << endl;
     for(auto magicItem : (*magicItemsInBst)){
-        bst->cSearch(magicItem, bstMaxLength);
+        totalNum++;
+        runningSum += bst->cSearch(magicItem, bstMaxLength);
     }
+    cout << endl << "The average search number of comparisons is: "  << round_prec(runningSum / totalNum, -2) << endl;
+
+
 
 }
 
