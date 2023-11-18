@@ -97,8 +97,8 @@ Each has space or time advantages depending on the operation. Linked objects are
 graph traversals because they offer an ergonomic way to traverse nodes. Adjacency lists 
 store a graph of a collection of vertices that each have a collection neighbors (the vertices that this vertex can reach).
 Matrices store a graph
-as a vertex count by vertex count 2D array of marking which, in an unweighted graph, are usually just store
-booleans which are ticked on if an connection from the outer vertex exists to the inner vertex. Linked objects
+as a vertex count by vertex count 2D array of marking which, in an unweighted graph, are usually just stored as
+booleans ticked on if an connection from the outer vertex exists to the inner vertex. Linked objects
 may store information about themselves such as id and a collection of their neighbors; they 
 are usually exposed by just a signal origin pointer which is link to the rest of its connected component; if
 there are disconnected components (vertices that are not reachable starting at the origin), they may be
@@ -106,13 +106,13 @@ reached by some other way and the graph may implement some other mechanism to re
 \subsection{Inserting to a Graph}
 Adding an item, often called vertex, to graph can be implemented in constant time\(^1\).
 Depending on the use case of the graph it can be useful to sore additional information about the vertices
-such as mappings to id's to vertex or index and a collection of the vertices themselves.
-In the below code example a vertex is inserted into an existing graph to form semantic adjacency list, matrix,
+such as mappings to id's to its vertex or index and a collection of all vertices themselves in the case of disconnected components.
+In the below code example, a vertex is inserted into an existing graph to form semantic adjacency list, matrix,
 and linked object structures. There could be some optimizations if the length of the graph is known ahead of time.\\
 \(^1\) The code example is O(n) because each matrix item existing in the graph need be resized.
 Also, vector push back operations may be O(n) if the internal capacity of the array is exceeded and
 therefore the items need to be copied to another bigger array. However, most of the time, especially 
-with the amount of vertices in the graphs1.txt test file, push backs occur in constant time because
+with the amount of vertices in the graphs1.txt test file, push backs mostly occur in constant time because
 only the current size counter need be incremented.
 % addVertex code listing
 \lstinputlisting[linerange={367-386}, firstnumber=367]{main.cpp}
@@ -135,7 +135,7 @@ Girl: \textit{Nevermind, it's just you. I'm leaving.}\\
 \vspace{1cm}
 \section{Traversing graphs}
 As mentioned before, linked objects are the preferred structure for graph traversals in most cases. This may
-be problematic with when graphs has disconnected components, but that too can ultimately be solved. The order
+be problematic when graphs have disconnected components, but that too can ultimately be solved. The order
 in which the vertices within a graph are processed are dictated by the search method. The time complexity
 of traversal should be \(O(|v| + |e|)\) or the sum of the vertices and edge cardinality. This is because each
 vertex is set from unseen to seen and each edge is considered once (and only traversed when the vertex is unseen).
@@ -146,7 +146,8 @@ the same amount of edge checks.
 Depth first search processes the vertices by going deep before branching out.
 Implementations of this traversal generally use a stack which obtains the order by pushing
 each vertex and its neighbors onto the stack marking and processing each and getting the next
-vertex to process by popping it out of the stack until all vertices have been processed.
+vertex to process by popping it out of the stack until all vertices have been processed. The following code
+usings the call stack instead of separate stack structure.
 % dfs listing
 \subsection{Breadth First Search}
 Breadth first search (BSF) processes the vertices by branching out before going deep.
@@ -158,36 +159,38 @@ vertex to process by dequeuing it out of the queue until all vertices have been 
 \hrule
 \vspace{.25cm}
 \noindent
-\textit{Joke redacted.}\\
+\textit{Joke redacted for this section.}\\
 \hrule
 \vspace{1cm}
 
 \section{Binary Search Tree}
-Binary search trees (BST) are a special type of graph where the vertices or sometimes just called nodes
-are arranged such that the left and right subtrees all follow a practical ordering. Usually, this ordering
+Binary search trees (BST) are a special type of graph where the vertices or usually just called nodes 
+have at most two children, and
+are arranged such that the left and right subtrees all follow an ordering. Usually, this ordering
 dictates that all elements in the left subtree of a node are strictly less than and all elements in the right
 subtree of a node are greater than or equal to.
 \subsection{Path}
 The "path" of a node is relative to the root. It represents the outcomes of the comparisons of the node values
 down the tree. For instance, a node whose path from the root is L R R would be less than the root node and greater
-than or less than the next two nodes down the tree. Below is insertion and search code which displays the path of 
+than or equal to the next two nodes down the tree. Below is insertion and search code which displays the path of 
 the node. Finding a node by its value / its correct position in the tree are very similar tasks. The program
 starts at the root and then travels down the tree pick the left or right node to consider next until it finds
-the node with the desired value in the case of a search or until it finds the node with a null pointer in the
+the node with the desired value in the case of a search or until it finds the node that is a null pointer in the
 case of an insert.
 Both ideally work in \(O(logn)\) where n is the number of elements in the BST;
 however, depending on the insertion order it can at worst be \(O(n)\) when the data structure forms
-more of a stick rather than a tree.
+more of a stick rather than a tree. Practically, look up times can be expected to more closely resemble
+the logarithmic order.
 
 % path listing
 \lstinputlisting[linerange={419-458}, firstnumber=419]{main.cpp}
 \lstinputlisting[linerange={460-480}, firstnumber=460]{main.cpp}
 \subsection{In-order Traversal}
-In-order traversals are one of three in the common BST family of searches, and they follow the pattern of
-left then root then right. In other words, the right subtree of a node is processed before
-the root then the root is processed then the right subtree. The time complexity of this operation is 
+In-order traversals are one of three in the common BST family of traversals, and they follow the pattern of
+left then root then right. In other words, the right subtree of a node is processed 
+then the root is processed then the right subtree. The time complexity of this operation is 
 \(O(n)\) because it only needs to consider each node once. The code below produces the desired order because
-the left subtree to called to be processed then once that entire call stack finishes the root is processed (printed out)
+the left subtree is called to be processed then once that entire call stack finishes the root is processed (printed out)
 then the right subtree.
 % in-order listing
 \lstinputlisting[linerange={482-487}, firstnumber=482]{main.cpp}
