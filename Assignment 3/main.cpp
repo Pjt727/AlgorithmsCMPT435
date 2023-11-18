@@ -79,14 +79,19 @@ class Graph {
         vector<vector<bool>>* matrix = new vector<vector<bool>>;
         vector<vector<string>>* adjacencyList = new vector<vector<string>>;
 
-        unordered_map<string, Vertex*> keysToVector;
+        unordered_map<string, Vertex*> keysToVertex;
         Vertex* origin = nullptr;
+        vector<Vertex*>* vertices = new vector<Vertex*>;
 
     public:
         // on delete of instance
         ~Graph() {
             delete matrix;
             delete adjacencyList;
+            for(auto vertex : (*this->vertices )){
+                delete vertex;
+            }
+            delete vertices;
         }
 
         void readCommands(string filepath = "./graphs1.txt"){
@@ -144,7 +149,7 @@ class Graph {
                     case VERTEX:
                         // can support other end commands like ; for instance or end of file
                         if(ch == '\n' || !isCharLeft){
-                            this->addNode(&buffer);
+                            this->addVertex(&buffer);
                             context = NONE;
                             buffer = "";
                             goto NEXT_CHAR;
@@ -170,19 +175,12 @@ class Graph {
                     while(graphCommandStream >> noskipws >> ch){
                         if(ch == '\n'){ break; }
                     }
-                    goto NEXT_CHAR;
-                }
-                // will usually short circuit next two checks
-                if(buffer == "new"){ 
-
+                } else if(buffer == "new"){ 
                     context = NEW;
                     buffer = "";
-                    goto NEXT_CHAR;
-                }
-                if(buffer == "add"){ 
+                } else if (buffer == "add"){ 
                     context = ADD;
                     buffer = "";
-                    goto NEXT_CHAR;
                 }
             }
 
@@ -272,14 +270,34 @@ class Graph {
             for(auto& keyIndex : this->keysToIndex){
                 isSeen.insert({keyIndex.first, false});
             }
-            string dfsPath = "";
-            generateDfsPath(this->origin, &isSeen, &dfsPath);
-            cout << endl << "The path of DFS starting at the first inserted vertex is:" << endl;
-            cout << dfsPath << endl << endl;
+            int graphComponentCounter = 1;
+            cout << endl << "The path of DFS starting at the first inserted vertices is:" << endl;
+            // simple solution I did think about before requiring no linear searching and at worst only
+            //  looking up isSeen an additional time not changing the overall complexity and also keeping
+            //  the order which was not the case when looking over unordered_maps (better than previous commits)
+            for(auto& vertex : (*this->vertices)){
+                if(!isSeen[vertex->id]){
+                    string dfsPath = "";
+                    generateDfsPath(vertex, &isSeen, &dfsPath);
+                    cout << "Component " << graphComponentCounter << ": " << dfsPath << endl;
+                    graphComponentCounter++;
+                }
+            }
 
-            cout << "The path of BFS starting at the first inserted vertex is:" << endl;
-            string bfsPath = getBfsPath(this->origin);
-            cout << bfsPath << endl;
+            // resetting variables for next bfs search
+            isSeen.clear();
+            for(auto& keyIndex : this->keysToIndex){
+                isSeen.insert({keyIndex.first, false});
+            }
+            graphComponentCounter = 1;
+            cout << endl << "The path of BFS starting at the first inserted vertices is:" << endl;
+            for(auto& vertex : (*this->vertices)){
+                if(!isSeen[vertex->id]){
+                    string dfsPath = getBfsPath(vertex, &isSeen);
+                    cout << "Component " << graphComponentCounter << ": " << dfsPath << endl;
+                    graphComponentCounter++;
+                }
+            }
         }
 
         // Ideally traversal specific data should not be imbedded in the objects themselves
@@ -297,31 +315,27 @@ class Graph {
             }
         }
 
-        string getBfsPath(Vertex* startVertex){
+        string getBfsPath(Vertex* startVertex, unordered_map<string, bool>* isSeen){
             const string DELIMINATOR = " ";
             string runningPath = "";
 
-            // Creating hashmap fro seen vertices 
-            unordered_map<string, bool> isSeen;
-            for(auto& keyIndex : this->keysToIndex){
-                isSeen.insert({keyIndex.first, false});
-            }
 
             // Traversing node in queue starting with the input
             //    and then enqueuing each neighbor
             Queue<Vertex*>* vertices = new Queue<Vertex*>();
             vertices->enqueue(startVertex);
-            isSeen[startVertex->id] = true;
+            (*isSeen)[startVertex->id] = true;
             while(!vertices->isEmpty()){
                 auto curVertex = vertices->dequeue();
                 runningPath += curVertex->id + DELIMINATOR;
                 for(auto& neighbor : curVertex->neighbors){
-                    if(!isSeen[neighbor->id]){
+                    if(!(*isSeen)[neighbor->id]){
                         vertices->enqueue(neighbor);
-                        isSeen[neighbor->id] = true;
+                        (*isSeen)[neighbor->id] = true;
                     }
                 }
             }
+
             delete vertices;
             return runningPath;
         }
@@ -333,12 +347,13 @@ class Graph {
                 // default settings
                 this->keysToIndex.clear();
 
-                // need to manually delete Vectors bc they are pointers
+                // need to manually delete vertices bc they are pointers
                 //      rust wouldn't let you make compile a memory mistake here
-                for(auto pair : keysToVector){
-                    delete pair.second;
+                for(auto vertex : (*this->vertices )){
+                    delete vertex;
                 }
-                this->keysToVector.clear();
+                this->vertices->clear();
+                this->keysToVertex.clear();
                 this->matrix->clear();
                 this->adjacencyList->clear();
                 this->origin = nullptr;
@@ -349,20 +364,22 @@ class Graph {
         }
 
         // Only need to add to the maps
-        void addNode(string* key){
-            Vertex* newVector = new Vertex;
-            newVector->id = (*key);
-            newVector->neighbors = (*new vector<Vertex*>);
+        void addVertex(string* key){
+            Vertex* newVertex = new Vertex;
+            newVertex->id = (*key);
+            newVertex->neighbors = (*new vector<Vertex*>);
             if( origin == nullptr){
-                origin = newVector;
+                origin = newVertex;
             }
+            vertices->push_back(newVertex);
             keysToIndex.insert({(*key), this->nodeCount});
-            keysToVector.insert({(*key), newVector});
+            keysToVertex.insert({(*key), newVertex});
             nodeCount++;
 
             // Resize vectors to fit all nodes 
             adjacencyList->resize(nodeCount);
             matrix->resize(nodeCount);
+            // Matrix linear operation
             for(auto& neighbors : (*matrix)){
                 neighbors.resize(nodeCount);
             }
@@ -384,8 +401,8 @@ class Graph {
             (*adjacencyList)[indexKey2].push_back((*key1));
 
             // Getting Vectors for keys
-            Vertex* vectorKey1 = keysToVector[(*key1)];
-            Vertex* vectorKey2 = keysToVector[(*key2)];
+            Vertex* vectorKey1 = keysToVertex[(*key1)];
+            Vertex* vectorKey2 = keysToVertex[(*key2)];
 
 
             vectorKey1->neighbors.push_back(vectorKey2);
