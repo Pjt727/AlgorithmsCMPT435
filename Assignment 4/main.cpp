@@ -15,12 +15,14 @@
     Date Due: 10/27/2023
 */
 #include<iostream>
+#include<string>
 #include<fstream>
 #include<vector>
 #include<cstdlib>
 #include<ctime>
 #include "oldcode.h"
 #include<unordered_map>
+#include <tuple>
 
 using namespace std;
 
@@ -113,7 +115,10 @@ class Graph {
                         // can support other end commands like ; for instance or end of file
                         if(ch == '\n' || !isCharLeft){
                             auto keys = split_keys(&buffer);
-                            this->addEdge(&keys.first, &keys.second);
+                            auto edge1 = get<0>(keys);
+                            auto edge2 = get<1>(keys);
+                            auto weight = get<2>(keys);
+                            this->addEdge(&edge1, &edge2, weight);
                             context = NONE;
                             buffer = "";
                             goto NEXT_CHAR;
@@ -142,9 +147,10 @@ class Graph {
         }
 
         // skips spaces, key2 starts after -
-        pair<string, string> split_keys(string* input, char deliminator = '-'){
+        tuple<string, string, int> split_keys(string* input, char deliminator = '-'){
             string key1 = "";
             string key2 = "";
+            string weight = "";
             int inputSize = (*input).size();
             int runningIndex = 0;
             char c;
@@ -157,13 +163,22 @@ class Graph {
                 }
                 key1 += c;
             }
+            while(input->at(runningIndex) == ' '){
+                runningIndex += 1;
+            }
+
             for(int* i = &runningIndex; (*i) < inputSize; (*i)++){
                 c = input->at((*i));
                 if(c == ' '){ continue; }
                 key2 += c;
             }
 
-            return make_pair(key1, key2);
+            for(int* i = &runningIndex; (*i) < inputSize; (*i)++) {
+                c = input->at((*i));
+                weight += c;
+            }
+
+            return make_tuple(key1, key2, stoi(weight));
         }
 
         void display(){
@@ -191,7 +206,7 @@ class Graph {
         void addVertex(string* key){
             Vertex* newVertex = new Vertex;
             newVertex->id = (*key);
-            newVertex->neighbors = (*new vector<Vertex*>);
+            newVertex->neighbors = (*new vector<pair<Vertex*, int>>);
             if( origin == nullptr){
                 origin = newVertex;
             }
@@ -201,11 +216,11 @@ class Graph {
         }
 
         // Add a directed link between keys
-        void addEdge(string* key1, string* key2){
+        void addEdge(string* key1, string* key2, int weight){
             // Getting Vectors for keys
             Vertex* vectorKey1 = keysToVertex[(*key1)];
             Vertex* vectorKey2 = keysToVertex[(*key2)];
 
-            vectorKey1->neighbors.push_back(vectorKey2);
+            vectorKey1->neighbors.push_back(make_pair(vectorKey2, weight));
         }
 };
