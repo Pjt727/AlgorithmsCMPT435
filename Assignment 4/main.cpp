@@ -7,7 +7,7 @@
         Copyright (C) 2023 Free Software Foundation, Inc.
 
     Special Thanks: 
-        The 3rd floor Handcock Atrium, my parents, family, friends, and of course
+        The 3rd floor Handcock Atrium snacks, my parents, family, friends, and of course
         my professor and mentor Alan.
         Without them I dont know how I would have gotten through this assignment. 
             (or gotten assigned it in the first place)
@@ -26,7 +26,7 @@ using namespace std;
 
 struct Vertex{
     string id;
-    vector<Vertex*> neighbors;
+    vector<pair<Vertex*, int>> neighbors;
 };
 
 
@@ -48,7 +48,7 @@ class Graph {
             delete vertices;
         }
 
-        void readCommands(string filepath = "./graphs1.txt"){
+        void readCommands(string filepath = "./graphs2.txt"){
             ifstream graphCommandStream(filepath);
             
             string buffer = "";
