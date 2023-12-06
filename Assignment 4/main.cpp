@@ -309,7 +309,154 @@ class Graph {
 
 };
 
+struct Spice {
+    string name;
+    float price;
+    int quantity;
+    float unitCost;
+};
 
+class SpiceHeist {
+    private:
+        vector<Spice*>* spices = new vector<Spice*>;
+
+    public:
+        ~SpiceHeist() {
+            for(auto spice : (*this->spices)){
+                delete spice;
+            }
+            delete spices;
+        }
+
+    void readCommands(string filepath = "./spice.txt") {
+        ifstream spiceCommandStream(filepath);
+        string buffer = "";
+
+        enum CommandContext { SPICE, HEIST, NONE}; // TM from class haha
+        CommandContext context = NONE;
+        char ch;
+
+        // do not need to flag check be alan is no longer mean (commands now end in ;)
+        while(spiceCommandStream >> noskipws >> ch) {
+            // ignore comments
+            if(buffer == "--") {
+                buffer = "";
+                while(spiceCommandStream >> noskipws >> ch){
+                    if(ch == '\n'){ break; }
+                }
+            }
+
+            // only processing command on spaces and ;
+            if(ch != ';' && ch != ' ') {
+                buffer += ch;
+                continue;
+            }
+
+            switch(context) {
+                case NONE:
+                    break;
+                case SPICE:
+                    this->addSpice(&spiceCommandStream);
+                    context = NONE;
+                    break;
+                case HEIST:
+                    if (buffer == "capacity" || buffer == "=") {
+                        buffer = "";
+                        continue;
+                    }
+                    int capacity = stoi(buffer);
+                    this->doHeist(capacity);
+                    context = NONE;
+                    buffer = "";
+                    break;
+            }
+
+            if (buffer == "spice") {
+                context = SPICE;
+                buffer = "";
+                continue;
+            } else if (buffer == "knapsack") {
+                context = HEIST;
+                buffer = "";
+            }
+        }
+    }
+    
+    void addSpice(ifstream* spiceCommandStream) {
+        char ch;
+        string buffer = "";
+        string name;
+        float totalPrice;
+        int quantity;
+        enum SpiceContext {NAME, TOTAL_PRICE, QTY, NONE};
+        SpiceContext context = NONE;
+        NEXT_CHAR:while((*spiceCommandStream) >> noskipws >> ch ) {
+            if(ch == '\n') { break; }
+            if (ch != ' ' && ch != ';') {
+                buffer += ch;
+                continue;
+            }
+            switch(context) {
+                case NONE:
+                    break;
+                case NAME:
+                    if(buffer == "="){
+                        goto NEXT_CHAR;
+                    }
+                    name = buffer;
+                    context = NONE;
+                    buffer = "";
+                    goto NEXT_CHAR;
+                case TOTAL_PRICE:
+                    if(buffer == "="){
+                        goto NEXT_CHAR;
+                    }
+                    totalPrice = stof(buffer);
+                    context = NONE;
+                    buffer = "";
+                    goto NEXT_CHAR;
+
+                    break;
+                case QTY:
+                    if(buffer == "="){
+                        goto NEXT_CHAR;
+                    }
+                    quantity = stoi(buffer);
+                    context = NONE;
+                    buffer = "";
+                    goto NEXT_CHAR;
+                    break;
+            }
+
+            if (buffer == "name") {
+                context = NAME;
+                buffer = "";
+                continue;
+            } else if (buffer == "total_price") {
+                context = TOTAL_PRICE;
+                buffer = "";
+                continue;
+
+            } else if (buffer == "qty") {
+                context = QTY;
+                buffer = "";
+                continue;
+            }
+        }
+
+        Spice spice;
+        spice.name = name;
+        spice.price = totalPrice;
+        spice.quantity = quantity;
+        spice.unitCost = totalPrice / quantity;
+        this->spices->push_back(&spice);
+
+    }
+
+    void doHeist(int knapsackCapacity) {
+
+    }
+};
 
 int main() {
     auto graph = new Graph();

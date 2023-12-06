@@ -74,3 +74,73 @@ class Stack {
             return top == nullptr;
         }
 };
+
+
+template <typename T>
+struct BinNode{
+    T data;
+    BinNode<T>* left;
+    BinNode<T>* right;
+};
+
+template <typename T>
+class BinarySearchTree {
+    private:
+        BinNode<T>* head = nullptr;
+    
+    public:
+        void insert(T data){
+            BinNode<T>* newNode = new BinNode<T>;
+            newNode->data = data;
+            newNode->left = nullptr;
+            newNode->right = nullptr;
+
+            // empty case
+            if(head == nullptr){
+                head = newNode;
+                cout << runningPath << "HEAD" << endl;
+                return;
+            }
+
+            // trailing node to get previous after termination
+            BinNode<T>* trailingNode;
+            BinNode<T>* consideredNode = head;
+            // terminates when left or right is null
+            while(consideredNode != nullptr){
+                trailingNode = consideredNode;
+                if(data >= consideredNode->data){
+                    consideredNode = consideredNode->right;
+                } else {
+                    consideredNode = consideredNode->left;
+                }
+            }
+            // recheck check side
+            // if comparison is expensive can store a bool from
+            //  the while instead of rechecking
+            if(data >= trailingNode->data){
+                trailingNode->right = newNode;
+            } else {
+                trailingNode->left = newNode;
+            }
+        }
+
+        int search(T data){
+            auto consideredNode = head;
+            // start at one for the first while check
+            int comparisonCount = 1;
+            while(consideredNode != nullptr && consideredNode->data != data){
+                comparisonCount++;
+                if(data >= consideredNode->data){
+                    consideredNode = consideredNode->right;
+                } else {
+                    consideredNode = consideredNode->left;
+                }
+            }
+
+            return comparisonCount;
+        }
+
+        BinNode<T>* getHead(){
+            return this->head;
+        }
+};
