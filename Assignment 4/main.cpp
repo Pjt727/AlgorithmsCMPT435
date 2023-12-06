@@ -22,7 +22,7 @@
 #include<ctime>
 #include "oldcode.h"
 #include<unordered_map>
-#include <tuple>
+#include<tuple>
 
 using namespace std;
 
@@ -123,6 +123,7 @@ class Graph {
                             buffer = "";
                             goto NEXT_CHAR;
                         }
+                        buffer += ch;
                         break;
                 }
 
@@ -150,7 +151,7 @@ class Graph {
         tuple<string, string, int> split_keys(string* input, char deliminator = '-'){
             string key1 = "";
             string key2 = "";
-            string weight = "";
+            string str_weight = "";
             int inputSize = (*input).size();
             int runningIndex = 0;
             char c;
@@ -167,21 +168,30 @@ class Graph {
                 runningIndex += 1;
             }
 
+            bool keyAdded = false;
             for(int* i = &runningIndex; (*i) < inputSize; (*i)++){
                 c = input->at((*i));
-                if(c == ' '){ continue; }
+                if(c == ' '){ 
+                    if(keyAdded) {
+                        break;
+                    }
+                    continue;
+                }
                 key2 += c;
+                keyAdded = true;
             }
 
             for(int* i = &runningIndex; (*i) < inputSize; (*i)++) {
                 c = input->at((*i));
-                weight += c;
+                str_weight += c;
             }
-
-            return make_tuple(key1, key2, stoi(weight));
+            int weight = stoi(str_weight);
+            return make_tuple(key1, key2, weight);
         }
 
         void display(){
+            cBellmanFordPath();
+            cout << endl << endl;
         }
 
         void newGraph(){
@@ -223,4 +233,85 @@ class Graph {
 
             vectorKey1->neighbors.push_back(make_pair(vectorKey2, weight));
         }
+
+        // bellman ford algorithm
+        void cBellmanFordPath() {
+            int vertexCardinality = this->vertices->size();
+
+            // mapping distance and previous
+            unordered_map<Vertex*, int> distanceFromOrigin;
+            unordered_map<Vertex*, Vertex*> predecessors;
+            for(auto vertex : *this->vertices) {
+                distanceFromOrigin.insert({vertex, (vertex == origin) ? 0 : INT_MAX});
+                predecessors.insert({vertex, nullptr});
+            }
+
+            // Relax every edge of every node vertex cardinality times
+            //   to propagate path values across the entire graph
+            for(int i=1; i < vertexCardinality; i++){
+                for(auto& sourceVertex : *this->vertices ){
+                    for(auto& toEdge : sourceVertex->neighbors) {
+                        auto& destinationVertex = toEdge.first;
+                        auto weight = toEdge.second;
+                        // relax 
+                        if(distanceFromOrigin[sourceVertex] == INT_MAX) {
+                            continue;
+                        }
+                        int weightFromSource = distanceFromOrigin[sourceVertex] + weight;
+                        if( weightFromSource < distanceFromOrigin[destinationVertex]){
+                            distanceFromOrigin[destinationVertex] = weightFromSource;
+                            predecessors[destinationVertex] = sourceVertex;
+                        }
+                    }
+                }
+            }
+
+            // check for negative cycles which would create indefinite answers
+            for(auto& sourceVertex : *this->vertices ){
+                for(auto& toEdge : sourceVertex->neighbors) {
+                    auto& destinationVertex = toEdge.first;
+                    auto weight = toEdge.second;
+                    // relax 
+                    if(distanceFromOrigin[sourceVertex] == INT_MAX) {
+                        continue;
+                    }
+                    int weightFromSource = distanceFromOrigin[sourceVertex] + weight;
+                    if( weightFromSource < distanceFromOrigin[destinationVertex]){
+                        // there is a negative weight cycle
+                        cout << "This graph has a negative weight cycle" << endl;
+                        return;
+                    }
+                }
+            }
+
+            // See the results (I am too lazy to write the tedious types 
+            //    for doing this in a different function)
+            for(auto& vertex : *this->vertices) {
+                if(vertex == this->origin) { continue; }
+                cout << this->origin->id << " -> " << vertex->id << " is ";
+                cout << distanceFromOrigin[vertex] << "; path is ";
+                auto pathToVertex = new Stack<Vertex*>();
+                auto runningVertex = vertex;
+                while(runningVertex != nullptr) {
+                    pathToVertex->push(runningVertex);
+                    runningVertex = predecessors[runningVertex];
+                }
+                runningVertex = pathToVertex->pop();
+                cout << runningVertex->id;
+                while(!pathToVertex->isEmpty()) {
+                    runningVertex = pathToVertex->pop();
+                    cout << " -> " << runningVertex->id;
+                }
+                cout << endl;
+            }
+        }
+
+
 };
+
+
+
+int main() {
+    auto graph = new Graph();
+    graph->readCommands();
+}
