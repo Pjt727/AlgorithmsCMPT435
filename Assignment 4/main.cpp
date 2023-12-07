@@ -23,6 +23,8 @@
 #include "oldcode.h"
 #include<unordered_map>
 #include<tuple>
+#include <sstream>
+
 
 using namespace std;
 
@@ -314,18 +316,32 @@ struct Spice {
     float price;
     int quantity;
     float unitCost;
+
+    bool operator<(const Spice& other) const {
+        return unitCost < other.unitCost;
+    }
+
+    bool operator>(const Spice& other) const {
+        return unitCost > other.unitCost;
+    }
+
+    bool operator<=(const Spice& other) const {
+        return unitCost <= other.unitCost;
+    }
+
+    bool operator>=(const Spice& other) const {
+        return unitCost >= other.unitCost;
+    }
 };
 
 class SpiceHeist {
     private:
-        vector<Spice*>* spices = new vector<Spice*>;
+        BinarySearchTree<Spice*> spices;
+
 
     public:
-        ~SpiceHeist() {
-            for(auto spice : (*this->spices)){
-                delete spice;
-            }
-            delete spices;
+        SpiceHeist() {
+            spices = (*new BinarySearchTree<Spice*>());
         }
 
     void readCommands(string filepath = "./spice.txt") {
@@ -347,7 +363,7 @@ class SpiceHeist {
             }
 
             // only processing command on spaces and ;
-            if(ch != ';' && ch != ' ') {
+            if((ch != ';') && (ch != ' ') && (ch != '\n')) {
                 buffer += ch;
                 continue;
             }
@@ -356,14 +372,18 @@ class SpiceHeist {
                 case NONE:
                     break;
                 case SPICE:
+                    
                     this->addSpice(&spiceCommandStream);
+                    buffer="";
                     context = NONE;
                     break;
                 case HEIST:
                     if (buffer == "capacity" || buffer == "=") {
                         buffer = "";
-                        continue;
+                        break;
                     }
+                    if (ch != ';') { continue; }
+                    cout << buffer << endl << endl;
                     int capacity = stoi(buffer);
                     this->doHeist(capacity);
                     context = NONE;
@@ -401,16 +421,21 @@ class SpiceHeist {
                     break;
                 case NAME:
                     if(buffer == "="){
+                        buffer = "";
                         goto NEXT_CHAR;
                     }
+                    cout << buffer << endl;
                     name = buffer;
                     context = NONE;
                     buffer = "";
                     goto NEXT_CHAR;
                 case TOTAL_PRICE:
+                    // THIS PROBLEM HERE
                     if(buffer == "="){
+                        buffer = "";
                         goto NEXT_CHAR;
                     }
+                    cout << buffer << endl;
                     totalPrice = stof(buffer);
                     context = NONE;
                     buffer = "";
@@ -419,14 +444,18 @@ class SpiceHeist {
                     break;
                 case QTY:
                     if(buffer == "="){
+                        buffer = "";
                         goto NEXT_CHAR;
                     }
+                    cout << buffer << endl;
                     quantity = stoi(buffer);
                     context = NONE;
                     buffer = "";
                     goto NEXT_CHAR;
                     break;
             }
+
+            cout << buffer << endl;
 
             if (buffer == "name") {
                 context = NAME;
@@ -441,6 +470,8 @@ class SpiceHeist {
                 context = QTY;
                 buffer = "";
                 continue;
+            } else {
+                buffer = "";
             }
         }
 
@@ -449,11 +480,34 @@ class SpiceHeist {
         spice.price = totalPrice;
         spice.quantity = quantity;
         spice.unitCost = totalPrice / quantity;
-        this->spices->push_back(&spice);
-
+        this->spices.insert(&spice);
     }
 
     void doHeist(int knapsackCapacity) {
+        auto orderedSpices = (*this->spices.getInOrder());
+        for( auto spice : orderedSpices ) {
+            cout << spice->name << ", " << spice->price << ", " << spice->quantity << ", " << spice->unitCost;
+        }
+        stringstream scoops;
+        scoops << " and contains ";
+        int quatloosSum = 0;
+        for(auto spice : orderedSpices) {
+            if (knapsackCapacity == 0) { break; }
+
+            int quantityAdded = min(spice->quantity, knapsackCapacity);
+            knapsackCapacity -= quantityAdded;
+            quatloosSum += spice->price * quantityAdded;
+            if(quantityAdded == 1 ) {
+                scoops << quantityAdded << " scoop of " << spice->name << ",";
+            } else {
+                scoops << quantityAdded << " scoops of " << spice->name << ",";
+            }
+        }
+        // replace last comma with a period
+        auto scoopsMessage = scoops.str();
+        scoopsMessage.back() = '.';
+
+        cout << "Knapsack of capacity " << knapsackCapacity << " is worth " << quatloosSum << scoopsMessage << endl;
 
     }
 };
@@ -461,4 +515,7 @@ class SpiceHeist {
 int main() {
     auto graph = new Graph();
     graph->readCommands();
+    cout << endl << endl;
+    auto spiceHeist = new SpiceHeist();
+    spiceHeist->readCommands();
 }

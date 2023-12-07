@@ -86,9 +86,14 @@ struct BinNode{
 template <typename T>
 class BinarySearchTree {
     private:
-        BinNode<T>* head = nullptr;
+        BinNode<T>* head;
+        vector<T>* orderedData;
     
     public:
+        BinarySearchTree() {
+            head = nullptr;
+            orderedData = new vector<T>;
+        }
         void insert(T data){
             BinNode<T>* newNode = new BinNode<T>;
             newNode->data = data;
@@ -98,7 +103,6 @@ class BinarySearchTree {
             // empty case
             if(head == nullptr){
                 head = newNode;
-                cout << runningPath << "HEAD" << endl;
                 return;
             }
 
@@ -124,20 +128,19 @@ class BinarySearchTree {
             }
         }
 
-        int search(T data){
-            auto consideredNode = head;
-            // start at one for the first while check
-            int comparisonCount = 1;
-            while(consideredNode != nullptr && consideredNode->data != data){
-                comparisonCount++;
-                if(data >= consideredNode->data){
-                    consideredNode = consideredNode->right;
-                } else {
-                    consideredNode = consideredNode->left;
-                }
+        vector<T>* getInOrder() {
+            this->orderedData->clear();
+            this->generateInOrderTraversal(this->head);
+            return this->orderedData;
+        }
+
+        void generateInOrderTraversal(BinNode<T>* node) {
+            if (node != nullptr) {
+                generateInOrderTraversal(node->left);
+                orderedData->push_back(node->data);
+                generateInOrderTraversal(node->right);
             }
 
-            return comparisonCount;
         }
 
         BinNode<T>* getHead(){
