@@ -332,16 +332,99 @@ struct Spice {
     bool operator>=(const Spice& other) const {
         return unitCost >= other.unitCost;
     }
+    
+};
+
+ostream& operator<<(ostream &os, const Spice &s) {
+    return (os << s.name << "," << s.price << "," << s.quantity << "," << s.unitCost << endl);
+}
+
+template <typename T>
+struct BinNode{
+    T data;
+    BinNode<T>* left;
+    BinNode<T>* right;
+};
+
+class BinarySearchTree {
+    private:
+        BinNode<Spice*>* head;
+        vector<Spice*>* orderedData;
+        bool renewSort;
+    
+    public:
+        BinarySearchTree() {
+            head = nullptr;
+            orderedData = new vector<Spice*>;
+            renewSort = true;
+        }
+        void insert(Spice* data){
+            BinNode<Spice*>* newNode = new BinNode<Spice*>;
+            newNode->data = data;
+            newNode->left = nullptr;
+            newNode->right = nullptr;
+
+            // empty case
+            if(head == nullptr){
+                head = newNode;
+                return;
+            }
+
+            // trailing node to get previous after termination
+            BinNode<Spice*>* trailingNode;
+            BinNode<Spice*>* consideredNode = head;
+            // terminates when left or right is null
+            while(consideredNode != nullptr){
+                trailingNode = consideredNode;
+                if((*data) <= (*consideredNode->data)){
+                    consideredNode = consideredNode->right;
+                } else {
+                    consideredNode = consideredNode->left;
+                }
+            }
+            // recheck check side
+            // if comparison is expensive can store a bool from
+            //  the while instead of rechecking
+            if((*data) <= (*trailingNode->data)){
+                trailingNode->right = newNode;
+            } else {
+                trailingNode->left = newNode;
+            }
+            renewSort = true;
+        }
+
+        vector<Spice*>* getInOrder() {
+            if (!renewSort) {
+                return this->orderedData;
+            }
+            this->orderedData->clear();
+            this->generateInOrderTraversal(this->head);
+            renewSort = false;
+            return this->orderedData;
+        }
+
+        void generateInOrderTraversal(BinNode<Spice*>* node) {
+            if (node != nullptr) {
+                generateInOrderTraversal(node->left);
+                orderedData->push_back(node->data);
+                generateInOrderTraversal(node->right);
+            }
+
+        }
+
+        BinNode<Spice*>* getHead(){
+            return this->head;
+        }
 };
 
 class SpiceHeist {
     private:
-        BinarySearchTree<Spice*> spices;
+        BinarySearchTree* spices;
 
 
     public:
         SpiceHeist() {
-            spices = (*new BinarySearchTree<Spice*>());
+            spices = new BinarySearchTree();
         }
 
     void readCommands(string filepath = "./spice.txt") {
@@ -378,12 +461,11 @@ class SpiceHeist {
                     context = NONE;
                     break;
                 case HEIST:
-                    if (buffer == "capacity" || buffer == "=") {
+                    if (buffer == "capacity" || buffer == "=" || buffer == "") {
                         buffer = "";
                         break;
                     }
                     if (ch != ';') { continue; }
-                    cout << buffer << endl << endl;
                     int capacity = stoi(buffer);
                     this->doHeist(capacity);
                     context = NONE;
@@ -409,7 +491,7 @@ class SpiceHeist {
         float totalPrice;
         int quantity;
         enum SpiceContext {NAME, TOTAL_PRICE, QTY, NONE};
-        SpiceContext context = NONE;
+        SpiceContext context = NAME;
         NEXT_CHAR:while((*spiceCommandStream) >> noskipws >> ch ) {
             if(ch == '\n') { break; }
             if (ch != ' ' && ch != ';') {
@@ -420,22 +502,20 @@ class SpiceHeist {
                 case NONE:
                     break;
                 case NAME:
-                    if(buffer == "="){
+                    if(buffer == "=" || buffer == ""){
                         buffer = "";
                         goto NEXT_CHAR;
                     }
-                    cout << buffer << endl;
                     name = buffer;
                     context = NONE;
                     buffer = "";
                     goto NEXT_CHAR;
                 case TOTAL_PRICE:
                     // THIS PROBLEM HERE
-                    if(buffer == "="){
+                    if(buffer == "=" || buffer == ""){
                         buffer = "";
                         goto NEXT_CHAR;
                     }
-                    cout << buffer << endl;
                     totalPrice = stof(buffer);
                     context = NONE;
                     buffer = "";
@@ -443,19 +523,16 @@ class SpiceHeist {
 
                     break;
                 case QTY:
-                    if(buffer == "="){
+                    if(buffer == "=" || buffer == ""){
                         buffer = "";
                         goto NEXT_CHAR;
                     }
-                    cout << buffer << endl;
                     quantity = stoi(buffer);
                     context = NONE;
                     buffer = "";
                     goto NEXT_CHAR;
                     break;
             }
-
-            cout << buffer << endl;
 
             if (buffer == "name") {
                 context = NAME;
@@ -475,47 +552,47 @@ class SpiceHeist {
             }
         }
 
-        Spice spice;
-        spice.name = name;
-        spice.price = totalPrice;
-        spice.quantity = quantity;
-        spice.unitCost = totalPrice / quantity;
-        this->spices.insert(&spice);
+        Spice* spice = new Spice();
+        spice->name = name;
+        spice->price = totalPrice;
+        spice->quantity = quantity;
+        spice->unitCost = totalPrice / quantity;
+        this->spices->insert(spice);
     }
 
     void doHeist(int knapsackCapacity) {
-        auto orderedSpices = (*this->spices.getInOrder());
-        for( auto spice : orderedSpices ) {
-            cout << spice->name << ", " << spice->price << ", " << spice->quantity << ", " << spice->unitCost;
-        }
+        vector<Spice*>* orderedSpices = this->spices->getInOrder();
+        int ogKnapsackCapacity = knapsackCapacity;
         stringstream scoops;
-        scoops << " and contains ";
+        scoops << " quatloos and contains";
         int quatloosSum = 0;
-        for(auto spice : orderedSpices) {
+        for(auto spiceRef : (*orderedSpices)) {
+            auto spice = (*spiceRef);
             if (knapsackCapacity == 0) { break; }
 
-            int quantityAdded = min(spice->quantity, knapsackCapacity);
+            int quantityAdded = min(spice.quantity, knapsackCapacity);
             knapsackCapacity -= quantityAdded;
-            quatloosSum += spice->price * quantityAdded;
+            quatloosSum += spice.unitCost * quantityAdded;
             if(quantityAdded == 1 ) {
-                scoops << quantityAdded << " scoop of " << spice->name << ",";
+                scoops << " " << quantityAdded << " scoop of " << spice.name << ",";
             } else {
-                scoops << quantityAdded << " scoops of " << spice->name << ",";
+                scoops << " " << quantityAdded << " scoops of " << spice.name << ",";
             }
         }
         // replace last comma with a period
         auto scoopsMessage = scoops.str();
         scoopsMessage.back() = '.';
 
-        cout << "Knapsack of capacity " << knapsackCapacity << " is worth " << quatloosSum << scoopsMessage << endl;
+        cout << "Knapsack of capacity " << ogKnapsackCapacity << " is worth " << quatloosSum << scoopsMessage << endl;
 
     }
 };
 
 int main() {
+    cout << "Showing the minimum paths from the first added vertex for each graph." << endl << endl;
     auto graph = new Graph();
     graph->readCommands();
-    cout << endl << endl;
+    cout << "Doing the Spice Heist!!" << endl << endl;
     auto spiceHeist = new SpiceHeist();
     spiceHeist->readCommands();
 }
