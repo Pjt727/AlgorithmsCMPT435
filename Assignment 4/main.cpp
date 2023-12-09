@@ -236,77 +236,77 @@ class Graph {
             vectorKey1->neighbors.push_back(make_pair(vectorKey2, weight));
         }
 
-        // bellman ford algorithm
-        void cBellmanFordPath() {
-            int vertexCardinality = this->vertices->size();
+// bellman ford algorithm, I unindented this code so it looks a bit better for the latex generation
+void cBellmanFordPath() {
+    int vertexCardinality = this->vertices->size();
 
-            // mapping distance and previous
-            unordered_map<Vertex*, int> distanceFromOrigin;
-            unordered_map<Vertex*, Vertex*> predecessors;
-            for(auto vertex : *this->vertices) {
-                distanceFromOrigin.insert({vertex, (vertex == origin) ? 0 : INT_MAX});
-                predecessors.insert({vertex, nullptr});
-            }
+    // mapping distance and previous
+    unordered_map<Vertex*, int> distanceFromOrigin;
+    unordered_map<Vertex*, Vertex*> predecessors;
+    for(auto vertex : *this->vertices) {
+        distanceFromOrigin.insert({vertex, (vertex == origin) ? 0 : INT_MAX});
+        predecessors.insert({vertex, nullptr});
+    }
 
-            // Relax every edge of every node vertex cardinality times
-            //   to propagate path values across the entire graph
-            for(int i=1; i < vertexCardinality; i++){
-                for(auto& sourceVertex : *this->vertices ){
-                    for(auto& toEdge : sourceVertex->neighbors) {
-                        auto& destinationVertex = toEdge.first;
-                        auto weight = toEdge.second;
-                        // relax 
-                        if(distanceFromOrigin[sourceVertex] == INT_MAX) {
-                            continue;
-                        }
-                        int weightFromSource = distanceFromOrigin[sourceVertex] + weight;
-                        if( weightFromSource < distanceFromOrigin[destinationVertex]){
-                            distanceFromOrigin[destinationVertex] = weightFromSource;
-                            predecessors[destinationVertex] = sourceVertex;
-                        }
-                    }
+    // Relax every edge of every node vertex cardinality times
+    //   to propagate path values across the entire graph
+    for(int i=1; i < vertexCardinality; i++){
+        for(auto& sourceVertex : *this->vertices ){
+            for(auto& toEdge : sourceVertex->neighbors) {
+                auto& destinationVertex = toEdge.first;
+                auto weight = toEdge.second;
+                // relax 
+                if(distanceFromOrigin[sourceVertex] == INT_MAX) {
+                    continue;
                 }
-            }
-
-            // check for negative cycles which would create indefinite answers
-            for(auto& sourceVertex : *this->vertices ){
-                for(auto& toEdge : sourceVertex->neighbors) {
-                    auto& destinationVertex = toEdge.first;
-                    auto weight = toEdge.second;
-                    // relax 
-                    if(distanceFromOrigin[sourceVertex] == INT_MAX) {
-                        continue;
-                    }
-                    int weightFromSource = distanceFromOrigin[sourceVertex] + weight;
-                    if( weightFromSource < distanceFromOrigin[destinationVertex]){
-                        // there is a negative weight cycle
-                        cout << "This graph has a negative weight cycle" << endl;
-                        return;
-                    }
+                int weightFromSource = distanceFromOrigin[sourceVertex] + weight;
+                if( weightFromSource < distanceFromOrigin[destinationVertex]){
+                    distanceFromOrigin[destinationVertex] = weightFromSource;
+                    predecessors[destinationVertex] = sourceVertex;
                 }
-            }
-
-            // See the results (I am too lazy to write the tedious types 
-            //    for doing this in a different function)
-            for(auto& vertex : *this->vertices) {
-                if(vertex == this->origin) { continue; }
-                cout << this->origin->id << " -> " << vertex->id << " is ";
-                cout << distanceFromOrigin[vertex] << "; path is ";
-                auto pathToVertex = new Stack<Vertex*>();
-                auto runningVertex = vertex;
-                while(runningVertex != nullptr) {
-                    pathToVertex->push(runningVertex);
-                    runningVertex = predecessors[runningVertex];
-                }
-                runningVertex = pathToVertex->pop();
-                cout << runningVertex->id;
-                while(!pathToVertex->isEmpty()) {
-                    runningVertex = pathToVertex->pop();
-                    cout << " -> " << runningVertex->id;
-                }
-                cout << endl;
             }
         }
+    }
+
+    // check for negative cycles which would create indefinite answers
+    for(auto& sourceVertex : *this->vertices ){
+        for(auto& toEdge : sourceVertex->neighbors) {
+            auto& destinationVertex = toEdge.first;
+            auto weight = toEdge.second;
+            // relax 
+            if(distanceFromOrigin[sourceVertex] == INT_MAX) {
+                continue;
+            }
+            int weightFromSource = distanceFromOrigin[sourceVertex] + weight;
+            if( weightFromSource < distanceFromOrigin[destinationVertex]){
+                // there is a negative weight cycle
+                cout << "This graph has a negative weight cycle" << endl;
+                return;
+            }
+        }
+    }
+
+    // See the results (I am too lazy to write the tedious types 
+    //    for doing this in a different function)
+    for(auto& vertex : *this->vertices) {
+        if(vertex == this->origin) { continue; }
+        cout << this->origin->id << " -> " << vertex->id << " is ";
+        cout << distanceFromOrigin[vertex] << "; path is ";
+        auto pathToVertex = new Stack<Vertex*>();
+        auto runningVertex = vertex;
+        while(runningVertex != nullptr) {
+            pathToVertex->push(runningVertex);
+            runningVertex = predecessors[runningVertex];
+        }
+        runningVertex = pathToVertex->pop();
+        cout << runningVertex->id;
+        while(!pathToVertex->isEmpty()) {
+            runningVertex = pathToVertex->pop();
+            cout << " -> " << runningVertex->id;
+        }
+        cout << endl;
+    }
+}
 
 
 };
